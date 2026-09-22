@@ -2,44 +2,58 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 type NavLink = { href: string; label: string };
 
+// Native modal <dialog> handles Escape, focus trapping and inerting the page.
 export default function MobileMenu({ links }: { links: NavLink[] }) {
   const pathname = usePathname();
-  // Menu is tied to the path it was opened on, so any navigation closes it.
-  const [openedOn, setOpenedOn] = useState<string | null>(null);
-  const open = openedOn === pathname;
-  const close = () => setOpenedOn(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const openButtonRef = useRef<HTMLButtonElement>(null);
 
+  const open = () => {
+    dialogRef.current?.showModal();
+    closeButtonRef.current?.focus();
+  };
+  const close = () => dialogRef.current?.close();
+
+  // Close on any navigation, including browser back/forward.
   useEffect(() => {
-    if (!open) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpenedOn(null);
+    dialogRef.current?.close();
+  }, [pathname]);
+
+  // The menu is mobile-only, so close it when the viewport grows to desktop.
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 48rem)");
+    const onChange = () => {
+      if (desktop.matches) dialogRef.current?.close();
     };
-    const onPointerDown = (event: PointerEvent) => {
-      if (!containerRef.current?.contains(event.target as Node)) {
-        setOpenedOn(null);
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    document.addEventListener("pointerdown", onPointerDown);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      document.removeEventListener("pointerdown", onPointerDown);
-    };
-  }, [open]);
+    desktop.addEventListener("change", onChange);
+    return () => desktop.removeEventListener("change", onChange);
+  }, []);
+
+  // Return focus explicitly: Safari doesn't focus buttons on click, so the dialog's
+  // own restore can't be relied on. On desktop the hamburger is hidden; use the logo.
+  const onDialogClose = () => {
+    const openButton = openButtonRef.current;
+    if (openButton?.checkVisibility()) {
+      openButton.focus();
+    } else {
+      dialogRef.current?.closest("header")?.querySelector("a")?.focus();
+    }
+  };
 
   return (
-    <div ref={containerRef}>
+    <>
       <button
+        ref={openButtonRef}
         type="button"
-        onClick={() => setOpenedOn(open ? null : pathname)}
-        aria-expanded={open}
+        onClick={open}
+        aria-haspopup="dialog"
         aria-controls="mobile-menu"
-        aria-label={open ? "Close menu" : "Open menu"}
+        aria-label="Open menu"
         className="-mr-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-foreground/5"
       >
         <svg
@@ -52,49 +66,73 @@ export default function MobileMenu({ links }: { links: NavLink[] }) {
           strokeLinecap="round"
           aria-hidden="true"
         >
-          {open ? (
-            <path d="M6 6l12 12M18 6L6 18" />
-          ) : (
-            <path d="M4 7h16M4 12h16M4 17h16" />
-          )}
+          <path d="M4 7h16M4 12h16M4 17h16" />
         </svg>
       </button>
 
-      {open && (
-        <div
-          id="mobile-menu"
-          className="absolute inset-x-0 top-full z-50 border-b border-foreground/10 bg-background"
-        >
-          <nav className="flex flex-col px-4 py-2 text-sm uppercase tracking-wide">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={close}
-                className="py-3 text-foreground/70 transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="flex flex-col gap-3 border-t border-foreground/10 px-4 py-4 text-sm uppercase tracking-wide">
-            <Link
-              href="/sign-in"
-              onClick={close}
-              className="rounded-full border border-foreground/15 px-4 py-2 text-center transition-colors hover:bg-foreground/5"
+      <dialog
+        ref={dialogRef}
+        id="mobile-menu"
+        aria-label="Menu"
+        onClose={onDialogClose}
+        className="m-0 h-dvh max-h-none w-full max-w-none flex-col overflow-y-auto border-0 bg-background p-0 text-foreground open:flex"
+      >
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-foreground/10 px-4">
+          <Link href="/" onClick={close} className="text-xl font-bold tracking-tight">
+            MHS
+          </Link>
+          <button
+            ref={closeButtonRef}
+            type="button"
+            onClick={close}
+            aria-label="Close menu"
+            className="-mr-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-foreground/5"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              aria-hidden="true"
             >
-              Sign in
-            </Link>
-            <Link
-              href="/sign-up"
-              onClick={close}
-              className="rounded-md bg-foreground px-4 py-2 text-center font-medium text-background transition-opacity hover:opacity-90"
-            >
-              Sign up
-            </Link>
-          </div>
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
         </div>
-      )}
-    </div>
+
+        <nav className="flex flex-1 flex-col px-4 py-4 text-2xl font-semibold uppercase tracking-wide">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={close}
+              className="border-b border-foreground/10 py-5 transition-opacity hover:opacity-70"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="flex shrink-0 flex-col gap-3 px-4 pb-8 pt-4 text-sm uppercase tracking-wide">
+          <Link
+            href="/sign-in"
+            onClick={close}
+            className="rounded-full border border-foreground/15 px-4 py-3 text-center transition-colors hover:bg-foreground/5"
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/sign-up"
+            onClick={close}
+            className="rounded-md bg-foreground px-4 py-3 text-center font-medium text-background transition-opacity hover:opacity-90"
+          >
+            Sign up
+          </Link>
+        </div>
+      </dialog>
+    </>
   );
 }
