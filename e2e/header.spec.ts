@@ -28,6 +28,20 @@ test("shows sign in and sign up links", async ({ page }) => {
   await expect(header.getByRole("link", { name: "Sign up" })).toHaveAttribute("href", "/sign-up");
 });
 
+test("sign in, sign up and Explore links share one corner radius", async ({ page }) => {
+  const header = page.getByRole("banner");
+  await header.getByRole("button", { name: "Explore" }).click();
+  const buttons = [
+    header.getByRole("link", { name: "Sign in" }),
+    header.getByRole("link", { name: "Sign up" }),
+    page.locator("#explore-menu").getByRole("link", { name: "Athletes", exact: true }),
+    page.locator("#explore-menu").getByRole("link", { name: "Brands", exact: true }),
+  ];
+  const radii = await Promise.all(buttons.map((b) => b.evaluate((el) => getComputedStyle(el).borderRadius)));
+  expect(radii[0]).not.toBe("0px");
+  expect(new Set(radii).size, `radii: ${radii.join(", ")}`).toBe(1);
+});
+
 test("main navigation is centered in the header", async ({ page }) => {
   const header = await page.getByRole("banner").boundingBox();
   const nav = await page.getByRole("banner").getByRole("navigation").boundingBox();

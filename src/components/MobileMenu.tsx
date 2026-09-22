@@ -53,7 +53,7 @@ export default function MobileMenu() {
         aria-haspopup="dialog"
         aria-controls="mobile-menu"
         aria-label="Open menu"
-        className="-mr-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-foreground/5"
+        className="-mr-2 flex h-10 w-10 items-center justify-center rounded-button transition-colors hover:bg-foreground/5"
       >
         <svg
           width="24"
@@ -85,7 +85,7 @@ export default function MobileMenu() {
             type="button"
             onClick={close}
             aria-label="Close menu"
-            className="-mr-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-foreground/5"
+            className="-mr-2 flex h-10 w-10 items-center justify-center rounded-button transition-colors hover:bg-foreground/5"
           >
             <svg
               width="24"
@@ -147,18 +147,18 @@ export default function MobileMenu() {
           ))}
         </nav>
 
-        <div className="flex shrink-0 flex-col gap-3 px-4 pb-8 pt-4 text-sm uppercase tracking-wide">
+        <div className="grid shrink-0 grid-cols-2 gap-3 px-4 pb-8 pt-4 text-sm uppercase tracking-wide">
           <Link
             href="/sign-in"
             onClick={close}
-            className="rounded-full border border-foreground/15 px-4 py-3 text-center transition-colors hover:bg-foreground/5"
+            className="rounded-button border border-foreground/15 px-4 py-3 text-center transition-colors hover:bg-foreground/5"
           >
             Sign in
           </Link>
           <Link
             href="/sign-up"
             onClick={close}
-            className="rounded-md bg-foreground px-4 py-3 text-center font-medium text-background transition-opacity hover:opacity-90"
+            className="rounded-button border border-transparent bg-foreground px-4 py-3 text-center font-medium text-background transition-opacity hover:opacity-90"
           >
             Sign up
           </Link>
