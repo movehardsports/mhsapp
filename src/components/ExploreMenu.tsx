@@ -72,7 +72,7 @@ export default function ExploreMenu() {
               <Link
                 href={link.href}
                 onClick={close}
-                className="block rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-foreground/5"
+                className="block rounded-button px-3 py-2 text-sm font-medium transition-colors hover:bg-foreground/5"
               >
                 {link.label}
               </Link>

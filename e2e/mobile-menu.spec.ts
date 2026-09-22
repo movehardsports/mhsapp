@@ -64,6 +64,43 @@ test("Explore is collapsed by default and expands to Athletes and Brands", async
   await expect(athletes).toBeHidden();
 });
 
+test("shows sign in and sign up side by side at equal width", async ({ page }) => {
+  await openMenu(page);
+  const signIn = (await menu(page).getByRole("link", { name: "Sign in" }).boundingBox())!;
+  const signUp = (await menu(page).getByRole("link", { name: "Sign up" }).boundingBox())!;
+
+  expect(signIn.x + signIn.width).toBeLessThanOrEqual(signUp.x);
+  expect(Math.abs(signIn.y - signUp.y)).toBeLessThan(1);
+  expect(Math.abs(signIn.width - signUp.width)).toBeLessThan(1);
+
+  // Labels sit at the same height even though only Sign in has a visible border.
+  const labelTop = (name: string) =>
+    menu(page)
+      .getByRole("link", { name })
+      .evaluate((el) => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        return range.getBoundingClientRect().top;
+      });
+  expect(Math.abs((await labelTop("Sign in")) - (await labelTop("Sign up")))).toBeLessThan(0.5);
+});
+
+test("all menu buttons share one corner radius", async ({ page }) => {
+  const radius = (locator: ReturnType<Page["locator"]>) =>
+    locator.evaluate((el) => getComputedStyle(el).borderRadius);
+  const openRadius = await radius(openButton(page));
+
+  await openMenu(page);
+  const radii = [
+    openRadius,
+    await radius(closeButton(page)),
+    await radius(menu(page).getByRole("link", { name: "Sign in" })),
+    await radius(menu(page).getByRole("link", { name: "Sign up" })),
+  ];
+  expect(radii[0]).not.toBe("0px");
+  expect(new Set(radii).size, `radii: ${radii.join(", ")}`).toBe(1);
+});
+
 test("moves focus to the close button when opened", async ({ page }) => {
   await openMenu(page);
   await expect(closeButton(page)).toBeFocused();
