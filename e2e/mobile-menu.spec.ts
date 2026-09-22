@@ -3,6 +3,7 @@ import { expect, type Page, test } from "@playwright/test";
 const menu = (page: Page) => page.getByRole("dialog", { name: "Menu" });
 const openButton = (page: Page) => page.getByRole("button", { name: "Open menu" });
 const closeButton = (page: Page) => page.getByRole("button", { name: "Close menu" });
+const exploreToggle = (page: Page) => menu(page).locator("summary", { hasText: "Explore" });
 
 async function openMenu(page: Page) {
   await openButton(page).click();
@@ -26,9 +27,38 @@ test("opens as a full-screen overlay with all links", async ({ page }) => {
   const viewport = page.viewportSize()!;
   expect(box).toEqual({ x: 0, y: 0, width: viewport.width, height: viewport.height });
 
-  for (const name of ["Explore", "For Athletes", "For Brands", "Sign in", "Sign up"]) {
-    await expect(menu(page).getByRole("link", { name })).toBeVisible();
+  await expect(exploreToggle(page)).toBeVisible();
+  for (const name of ["Events", "For Athletes", "For Brands", "Sign in", "Sign up"]) {
+    await expect(menu(page).getByRole("link", { name, exact: true })).toBeVisible();
   }
+});
+
+test("lists menu sections in order: Explore, Events, For Athletes, For Brands", async ({ page }) => {
+  await openMenu(page);
+  const items = menu(page).getByRole("navigation").locator(":scope > details > summary, :scope > a");
+  await expect(items).toHaveText(["Explore", "Events", "For Athletes", "For Brands"]);
+});
+
+test("Events links to the events page", async ({ page }) => {
+  await openMenu(page);
+  await expect(menu(page).getByRole("link", { name: "Events", exact: true })).toHaveAttribute("href", "/events");
+});
+
+test("Explore is collapsed by default and expands to Athletes and Brands", async ({ page }) => {
+  await openMenu(page);
+  const athletes = menu(page).getByRole("link", { name: "Athletes", exact: true });
+  const brands = menu(page).getByRole("link", { name: "Brands", exact: true });
+  await expect(athletes).toBeHidden();
+  await expect(brands).toBeHidden();
+
+  await exploreToggle(page).click();
+  await expect(athletes).toHaveAttribute("href", "/explore/athletes");
+  await expect(athletes).toBeVisible();
+  await expect(brands).toHaveAttribute("href", "/explore/brands");
+  await expect(brands).toBeVisible();
+
+  await exploreToggle(page).click();
+  await expect(athletes).toBeHidden();
 });
 
 test("moves focus to the close button when opened", async ({ page }) => {
@@ -69,8 +99,9 @@ test("closes when the logo is clicked on the current page", async ({ page }) => 
 
 test("closes after navigating with a menu link", async ({ page }) => {
   await openMenu(page);
-  await menu(page).getByRole("link", { name: "Explore" }).click();
-  await expect(page).toHaveURL("/explore");
+  await exploreToggle(page).click();
+  await menu(page).getByRole("link", { name: "Athletes", exact: true }).click();
+  await expect(page).toHaveURL("/explore/athletes");
   await expect(menu(page)).toBeHidden();
 });
 
@@ -95,12 +126,13 @@ test("closes when the screen grows to desktop and focuses the logo", async ({ pa
   await expect(page.getByRole("banner").getByRole("link", { name: "MHS" }).first()).toBeFocused();
 });
 
-// Needs real pages: /explore is a 404 today, so back/forward does a full reload,
+// Needs real pages: /explore/athletes is a 404 today, so back/forward does a full reload,
 // which resets the menu anyway and the test would pass without checking anything.
 test.fixme("stays closed after browser back and forward", async ({ page }) => {
   await openMenu(page);
-  await menu(page).getByRole("link", { name: "Explore" }).click();
-  await expect(page).toHaveURL("/explore");
+  await exploreToggle(page).click();
+  await menu(page).getByRole("link", { name: "Athletes", exact: true }).click();
+  await expect(page).toHaveURL("/explore/athletes");
 
   await openMenu(page);
   await page.goBack();
@@ -108,6 +140,6 @@ test.fixme("stays closed after browser back and forward", async ({ page }) => {
   await expect(menu(page)).toBeHidden();
 
   await page.goForward();
-  await expect(page).toHaveURL("/explore");
+  await expect(page).toHaveURL("/explore/athletes");
   await expect(menu(page)).toBeHidden();
 });

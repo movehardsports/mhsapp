@@ -20,6 +20,11 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
     {
+      name: "desktop-safari",
+      testMatch: "header.spec.ts",
+      use: { ...devices["Desktop Safari"] },
+    },
+    {
       name: "mobile-chrome",
       testMatch: "mobile-menu.spec.ts",
       use: { ...devices["Pixel 7"] },

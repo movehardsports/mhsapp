@@ -1,11 +1,7 @@
 import Link from "next/link";
+import ExploreMenu from "@/components/ExploreMenu";
 import MobileMenu from "@/components/MobileMenu";
-
-const navLinks = [
-  { href: "/explore", label: "Explore" },
-  { href: "/athletes", label: "For Athletes" },
-  { href: "/brands", label: "For Brands" },
-];
+import { navLinks } from "@/components/navigation";
 
 export default function Header() {
   return (
@@ -15,6 +11,7 @@ export default function Header() {
           MHS
         </Link>
         <nav className="hidden items-center gap-6 text-sm uppercase tracking-wide md:flex">
+          <ExploreMenu />
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -40,7 +37,7 @@ export default function Header() {
           </Link>
         </div>
         <div className="justify-self-end md:hidden">
-          <MobileMenu links={navLinks} />
+          <MobileMenu />
         </div>
       </div>
     </header>

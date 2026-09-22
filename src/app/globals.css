@@ -29,3 +29,11 @@ body {
 html:has(#mobile-menu[open]) {
   overflow: hidden;
 }
+
+/* Tailwind v4 keeps the browser's default arrow cursor on buttons; use a pointer like links. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
