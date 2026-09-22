@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
-
-type NavLink = { href: string; label: string };
+import { exploreLinks, navLinks } from "@/components/navigation";
 
 // Native modal <dialog> handles Escape, focus trapping and inerting the page.
-export default function MobileMenu({ links }: { links: NavLink[] }) {
+export default function MobileMenu() {
   const pathname = usePathname();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -104,7 +103,39 @@ export default function MobileMenu({ links }: { links: NavLink[] }) {
         </div>
 
         <nav className="flex flex-1 flex-col px-4 py-4 text-2xl font-semibold uppercase tracking-wide">
-          {links.map((link) => (
+          <details className="group border-b border-foreground/10 py-5">
+            <summary className="flex cursor-pointer list-none items-center justify-between transition-opacity hover:opacity-70 [&::-webkit-details-marker]:hidden">
+              Explore
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                className="transition-transform group-open:rotate-180"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+            <ul className="mt-3 flex flex-col gap-1 text-base uppercase tracking-wide">
+              {exploreLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    onClick={close}
+                    className="block py-2 transition-opacity hover:opacity-70"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </details>
+          {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
