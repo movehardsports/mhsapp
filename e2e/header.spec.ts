@@ -48,7 +48,7 @@ test.describe("Explore menu", () => {
     await expect(exploreMenu(page)).toBeHidden();
   });
 
-  test("opens below the header with Athletes and Brands", async ({ page }) => {
+  test("opens with Athletes and Brands", async ({ page }) => {
     await exploreButton(page).click();
     await expect(exploreMenu(page)).toBeVisible();
 
@@ -56,9 +56,22 @@ test.describe("Explore menu", () => {
     await expect(menu.getByRole("link", { name: "Athletes", exact: true })).toHaveAttribute("href", "/explore/athletes");
     await expect(menu.getByRole("link", { name: "Brands", exact: true })).toHaveAttribute("href", "/explore/brands");
 
+  });
+
+  test("top edge lines up with the header's bottom border", async ({ page }) => {
+    await exploreButton(page).click();
     const header = await page.getByRole("banner").boundingBox();
-    const box = await menu.boundingBox();
-    expect(box!.y).toBeGreaterThanOrEqual(header!.y + header!.height);
+    const box = await exploreMenu(page).boundingBox();
+    // The header's 1px bottom border is its last pixel row; the panel's top border sits on it.
+    expect(box!.y).toBe(header!.y + header!.height - 1);
+  });
+
+  test("shows Athletes and Brands in uppercase", async ({ page }) => {
+    await exploreButton(page).click();
+    for (const name of ["Athletes", "Brands"]) {
+      const link = exploreMenu(page).getByRole("link", { name, exact: true });
+      await expect(link).toHaveCSS("text-transform", "uppercase");
+    }
   });
 
   test("puts Athletes on the left and Brands on the right", async ({ page }) => {
@@ -87,6 +100,19 @@ test.describe("Explore menu", () => {
 
     await page.setViewportSize(size);
     await expect(exploreMenu(page)).toBeHidden();
+  });
+
+  test("dims and lightly blurs the page below the header", async ({ page }) => {
+    await exploreButton(page).click();
+    const backdrop = await exploreMenu(page).evaluate((el) => {
+      const style = getComputedStyle(el, "::backdrop");
+      return { top: style.top, background: style.backgroundColor, filter: style.backdropFilter };
+    });
+    const header = await page.getByRole("banner").boundingBox();
+
+    expect(backdrop.top).toBe(`${header!.y + header!.height}px`);
+    expect(backdrop.background).not.toBe("rgba(0, 0, 0, 0)");
+    expect(backdrop.filter).toMatch(/blur\(/);
   });
 
   test("closes when the Explore button is clicked again", async ({ page }) => {

@@ -56,14 +56,15 @@ export default function ExploreMenu() {
         </svg>
       </button>
 
-      {/* In the top layer, `absolute` is relative to the page, so top-[4.25rem] sits just below the header. */}
+      {/* In the top layer, `absolute` is relative to the page, so top-16 lines up with the header border.
+          The backdrop starts below the header so the header itself stays sharp. */}
       <div
         ref={panelRef}
         id="explore-menu"
         popover="auto"
         role="group"
         aria-label="Explore"
-        className="absolute inset-auto left-1/2 top-[4.25rem] m-0 w-[32rem] -translate-x-1/2 rounded-2xl border border-foreground/10 bg-background p-6 text-foreground normal-case tracking-normal shadow-xl"
+        className="absolute inset-auto left-1/2 top-16 m-0 w-[32rem] -translate-x-1/2 rounded-2xl border border-foreground/10 bg-background p-6 text-foreground uppercase tracking-wide shadow-xl backdrop:top-[calc(4rem+1px)] backdrop:bg-black/20 backdrop:backdrop-blur-xs"
       >
         <ul className="grid grid-cols-2 gap-2">
           {exploreLinks.map((link) => (

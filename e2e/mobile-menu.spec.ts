@@ -57,6 +57,9 @@ test("Explore is collapsed by default and expands to Athletes and Brands", async
   await expect(brands).toHaveAttribute("href", "/explore/brands");
   await expect(brands).toBeVisible();
 
+  await expect(athletes).toHaveCSS("text-transform", "uppercase");
+  await expect(brands).toHaveCSS("text-transform", "uppercase");
+
   await exploreToggle(page).click();
   await expect(athletes).toBeHidden();
 });

@@ -121,7 +121,7 @@ export default function MobileMenu() {
                 <path d="m6 9 6 6 6-6" />
               </svg>
             </summary>
-            <ul className="mt-3 flex flex-col gap-1 text-base normal-case tracking-normal">
+            <ul className="mt-3 flex flex-col gap-1 text-base uppercase tracking-wide">
               {exploreLinks.map((link) => (
                 <li key={link.href}>
                   <Link
