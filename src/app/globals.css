@@ -24,3 +24,8 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Lock page scroll while the mobile menu dialog is open. */
+html:has(#mobile-menu[open]) {
+  overflow: hidden;
+}
