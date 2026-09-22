@@ -25,13 +25,13 @@ export default function Header() {
         <div className="hidden items-center justify-self-end gap-3 text-sm uppercase tracking-wide md:flex">
           <Link
             href="/sign-in"
-            className="rounded-full px-4 py-2 transition-colors hover:bg-foreground/5"
+            className="rounded-button px-4 py-2 transition-colors hover:bg-foreground/5"
           >
             Sign in
           </Link>
           <Link
             href="/sign-up"
-            className="rounded-md bg-foreground px-4 py-2 font-medium text-background transition-opacity hover:opacity-90"
+            className="rounded-button bg-foreground px-4 py-2 font-medium text-background transition-opacity hover:opacity-90"
           >
             Sign up
           </Link>
