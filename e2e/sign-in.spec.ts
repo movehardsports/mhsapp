@@ -1,9 +1,10 @@
 import { expect, type Page, test } from "@playwright/test";
+import { gotoHydrated } from "./hydration";
 
 const form = (page: Page) => page.getByRole("main").locator("form");
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/sign-in");
+  await gotoHydrated(page, "/sign-in");
 });
 
 test("shows the sign in page", async ({ page }) => {

@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 import Field from "@/components/forms/Field";
 import SubmitButton from "@/components/forms/SubmitButton";
+import TagPicker from "@/components/forms/TagPicker";
+import { sportGroups } from "@/lib/sports";
 
 export default function AthleteOnboardingForm() {
   const router = useRouter();
@@ -25,7 +27,7 @@ export default function AthleteOnboardingForm() {
         <Field id="age" label="Age" type="number" required min={1} max={120} inputMode="numeric" />
         <Field id="city" label="City" required autoComplete="address-level2" />
       </div>
-      <Field id="sport" label="Sport" required />
+      <TagPicker name="sports" legend="Sports" groups={sportGroups} requiredMessage="Choose at least one sport." />
       <SubmitButton>Continue</SubmitButton>
     </form>
   );

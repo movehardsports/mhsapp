@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import { gotoHydrated } from "./hydration";
 
 const form = (page: Page) => page.getByRole("main").locator("form");
 const confirmIsValid = (page: Page) =>
@@ -14,7 +15,7 @@ async function fillValidForm(page: Page, accountType: "Athlete" | "Brand") {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/sign-up");
+  await gotoHydrated(page, "/sign-up");
 });
 
 test("shows the sign up page", async ({ page }) => {
