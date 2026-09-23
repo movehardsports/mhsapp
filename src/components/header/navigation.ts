@@ -10,3 +10,6 @@ export const navLinks: NavLink[] = [
   { href: "/athletes", label: "For Athletes" },
   { href: "/brands", label: "For Brands" },
 ];
+
+export const signInLink: NavLink = { href: "/sign-in", label: "Sign in" };
+export const signUpLink: NavLink = { href: "/sign-up", label: "Sign up" };

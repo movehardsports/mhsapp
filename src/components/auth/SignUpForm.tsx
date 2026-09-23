@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, type FormEvent } from "react";
 import Field from "@/components/forms/Field";
 import SubmitButton from "@/components/forms/SubmitButton";
+import { checkableTile } from "@/components/ui/styles";
 import { accountTypeLabels, accountTypes, isAccountType, onboardingPath } from "@/lib/accountTypes";
 
 export default function SignUpForm() {
@@ -38,7 +39,7 @@ export default function SignUpForm() {
           {accountTypes.map((type) => (
             <label
               key={type}
-              className="flex cursor-pointer items-center justify-center rounded-button border border-foreground/20 px-4 py-3 text-sm uppercase tracking-wide transition-colors hover:bg-foreground/5 has-checked:border-foreground has-checked:bg-foreground has-checked:text-background has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-foreground"
+              className={`${checkableTile} justify-center px-4 py-3 text-sm`}
             >
               <input type="radio" name="accountType" value={type} required className="sr-only" />
               {accountTypeLabels[type]}

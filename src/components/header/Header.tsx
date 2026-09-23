@@ -1,7 +1,8 @@
 import Link from "next/link";
 import ExploreMenu from "@/components/header/ExploreMenu";
 import MobileMenu from "@/components/header/MobileMenu";
-import { navLinks } from "@/components/header/navigation";
+import { navLinks, signInLink, signUpLink } from "@/components/header/navigation";
+import { primaryButton } from "@/components/ui/styles";
 
 export default function Header() {
   return (
@@ -24,16 +25,16 @@ export default function Header() {
         </nav>
         <div className="hidden items-center justify-self-end gap-3 text-sm uppercase tracking-wide md:flex">
           <Link
-            href="/sign-in"
+            href={signInLink.href}
             className="rounded-button px-4 py-2 transition-colors hover:bg-foreground/5"
           >
-            Sign in
+            {signInLink.label}
           </Link>
           <Link
-            href="/sign-up"
-            className="rounded-button bg-foreground px-4 py-2 font-medium text-background transition-opacity hover:opacity-90"
+            href={signUpLink.href}
+            className={`${primaryButton} px-4 py-2`}
           >
-            Sign up
+            {signUpLink.label}
           </Link>
         </div>
         <div className="justify-self-end md:hidden">

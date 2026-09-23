@@ -19,7 +19,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("shows the sign up page", async ({ page }) => {
-  await expect(page).toHaveTitle("Sign up");
+  await expect(page).toHaveTitle("Sign up | MHS");
   await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
 });
 

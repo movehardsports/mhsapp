@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import SignUpForm from "@/components/auth/SignUpForm";
+import { signInLink } from "@/components/header/navigation";
+import PageTitle from "@/components/ui/PageTitle";
+import { textLink } from "@/components/ui/styles";
 
 export const metadata: Metadata = {
   title: "Sign up",
@@ -8,15 +11,15 @@ export const metadata: Metadata = {
 
 export default function SignUpPage() {
   return (
-    <main className="mx-auto w-full max-w-sm px-4 py-16 lg:max-w-lg">
-      <h1 className="mb-8 text-center text-2xl font-bold tracking-tight">Create your account</h1>
+    <>
+      <PageTitle>Create your account</PageTitle>
       <SignUpForm />
       <p className="mt-6 text-center text-sm text-foreground/70">
         Already have an account?{" "}
-        <Link href="/sign-in" className="font-medium text-foreground underline-offset-4 hover:underline">
-          Sign in
+        <Link href={signInLink.href} className={textLink}>
+          {signInLink.label}
         </Link>
       </p>
-    </main>
+    </>
   );
 }

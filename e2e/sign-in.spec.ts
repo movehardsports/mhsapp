@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("shows the sign in page", async ({ page }) => {
-  await expect(page).toHaveTitle("Sign in");
+  await expect(page).toHaveTitle("Sign in | MHS");
   await expect(page.getByRole("heading", { name: "Sign in to your account" })).toBeVisible();
 });
 
