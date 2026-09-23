@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { exploreLinks } from "@/components/navigation";
+import { exploreLinks } from "@/components/header/navigation";
 
 // Native popover handles opening, closing on outside click and Escape, and focus order.
 export default function ExploreMenu() {

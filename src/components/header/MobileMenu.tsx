@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { exploreLinks, navLinks } from "@/components/navigation";
+import { exploreLinks, navLinks } from "@/components/header/navigation";
 
 // Native modal <dialog> handles Escape, focus trapping and inerting the page.
 export default function MobileMenu() {

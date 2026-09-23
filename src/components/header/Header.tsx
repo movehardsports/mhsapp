@@ -1,7 +1,7 @@
 import Link from "next/link";
-import ExploreMenu from "@/components/ExploreMenu";
-import MobileMenu from "@/components/MobileMenu";
-import { navLinks } from "@/components/navigation";
+import ExploreMenu from "@/components/header/ExploreMenu";
+import MobileMenu from "@/components/header/MobileMenu";
+import { navLinks } from "@/components/header/navigation";
 
 export default function Header() {
   return (
