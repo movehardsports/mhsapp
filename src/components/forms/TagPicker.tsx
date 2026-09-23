@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
+import { checkableTile } from "@/components/ui/styles";
 
 type TagOption = { id: string; label: string };
 type TagGroup = { label: string; options: readonly TagOption[] };
@@ -45,7 +46,7 @@ export default function TagPicker({ name, legend, groups, requiredMessage }: Tag
                 {group.options.map((option) => (
                   <label
                     key={option.id}
-                    className="flex cursor-pointer items-center rounded-button border border-foreground/20 px-2.5 py-1.5 text-xs uppercase tracking-wide transition-colors hover:bg-foreground/5 has-checked:border-foreground has-checked:bg-foreground has-checked:text-background has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-foreground md:px-3 md:text-sm"
+                    className={`${checkableTile} px-2.5 py-1.5 text-xs md:px-3 md:text-sm`}
                   >
                     <input type="checkbox" name={name} value={option.id} className="sr-only" />
                     {option.label}

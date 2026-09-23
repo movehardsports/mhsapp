@@ -60,7 +60,7 @@ test.describe("athlete onboarding", () => {
   });
 
   test("shows the athlete fields", async ({ page }) => {
-    await expect(page).toHaveTitle("Set up your athlete profile");
+    await expect(page).toHaveTitle("Set up your athlete profile | MHS");
     await expect(page.getByRole("heading", { name: "Onboarding" })).toBeVisible();
     for (const label of ["First name", "Last name", "Nickname", "Age", "City"]) {
       await expect(page.getByLabel(label)).toBeVisible();
@@ -102,7 +102,7 @@ test.describe("brand onboarding", () => {
   });
 
   test("shows the brand fields", async ({ page }) => {
-    await expect(page).toHaveTitle("Set up your brand profile");
+    await expect(page).toHaveTitle("Set up your brand profile | MHS");
     await expect(page.getByRole("heading", { name: "Tell us about your brand" })).toBeVisible();
     await expect(page.getByLabel("Brand name")).toBeVisible();
     await expectAllSports(page);

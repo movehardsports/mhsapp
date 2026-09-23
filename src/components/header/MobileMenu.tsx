@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { exploreLinks, navLinks } from "@/components/header/navigation";
+import { exploreLinks, navLinks, signInLink, signUpLink } from "@/components/header/navigation";
+import { primaryButton } from "@/components/ui/styles";
 
 // Native modal <dialog> handles Escape, focus trapping and inerting the page.
 export default function MobileMenu() {
@@ -149,18 +150,18 @@ export default function MobileMenu() {
 
         <div className="grid shrink-0 grid-cols-2 gap-3 px-4 pb-8 pt-4 text-sm uppercase tracking-wide">
           <Link
-            href="/sign-in"
+            href={signInLink.href}
             onClick={close}
             className="rounded-button border border-foreground/15 px-4 py-3 text-center transition-colors hover:bg-foreground/5"
           >
-            Sign in
+            {signInLink.label}
           </Link>
           <Link
-            href="/sign-up"
+            href={signUpLink.href}
             onClick={close}
-            className="rounded-button border border-transparent bg-foreground px-4 py-3 text-center font-medium text-background transition-opacity hover:opacity-90"
+            className={`${primaryButton} border border-transparent px-4 py-3 text-center`}
           >
-            Sign up
+            {signUpLink.label}
           </Link>
         </div>
       </dialog>
