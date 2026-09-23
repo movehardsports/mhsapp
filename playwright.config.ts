@@ -16,22 +16,22 @@ export default defineConfig({
   projects: [
     {
       name: "desktop-chrome",
-      testMatch: "header.spec.ts",
+      testMatch: ["header.spec.ts", "sign-up.spec.ts", "sign-in.spec.ts", "onboarding.spec.ts"],
       use: { ...devices["Desktop Chrome"] },
     },
     {
       name: "desktop-safari",
-      testMatch: "header.spec.ts",
+      testMatch: ["header.spec.ts", "sign-up.spec.ts", "sign-in.spec.ts", "onboarding.spec.ts"],
       use: { ...devices["Desktop Safari"] },
     },
     {
       name: "mobile-chrome",
-      testMatch: "mobile-menu.spec.ts",
+      testMatch: ["mobile-menu.spec.ts", "sign-up.spec.ts", "sign-in.spec.ts", "onboarding.spec.ts"],
       use: { ...devices["Pixel 7"] },
     },
     {
       name: "mobile-safari",
-      testMatch: "mobile-menu.spec.ts",
+      testMatch: ["mobile-menu.spec.ts", "sign-up.spec.ts", "sign-in.spec.ts", "onboarding.spec.ts"],
       use: { ...devices["iPhone 14"] },
     },
   ],
