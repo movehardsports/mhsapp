@@ -1,0 +1,3 @@
+# Vendored agent skills (managed by `npx skills`, hashed in skills-lock.json)
+.claude/skills/
+skills-lock.json
