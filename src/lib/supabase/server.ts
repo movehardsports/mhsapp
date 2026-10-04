@@ -16,12 +16,15 @@ export async function createClient() {
         },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
           } catch {
-            // Server Components can't set cookies. That's fine once the proxy refreshes sessions.
+            // Server Components can't set cookies. That's fine: the proxy (src/proxy.ts) refreshes the
+            // session and writes the cookies before the page renders.
           }
         },
       },
-    },
+    }
   );
 }
