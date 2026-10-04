@@ -21,7 +21,8 @@ Update this section in every PR that changes it.
 - Done (auth): sign-up through a Server Action with email confirmation; the emailed link opens `/auth/confirm` (token hash, template in `supabase/templates/`), whose button confirms the email (a GET alone does nothing, so mail scanners can't use up the link) and continues to the onboarding for the profile's account type. The hosted project still needs that email template and email confirmation turned on in the dashboard.
 - Done (auth): sign-in and sign-out through Server Actions; the header shows the signed-in email and a Sign out button (`getClaims()` in `src/lib/auth/session.ts`).
 - Done (auth): `src/proxy.ts` refreshes the Supabase session on every page request and saves the new tokens (`src/lib/supabase/proxy.ts`). It only refreshes: pages, Server Actions and RLS still check the user themselves.
-- Next: protected onboarding (guests redirected to sign-in, onboarding saved to the database).
+- Done (database): public `athletes` and `brands` profiles (readable by everyone, guests included) and `athlete_private` (the last name, owner only), saved through `save_athlete_profile` / `save_brand_profile`; a foreign key on `(id, account_type)` keeps athlete rows on athlete accounts and brand rows on brand accounts. The `sport` enum mirrors `src/lib/sports.ts`.
+- Next: wire the onboarding forms to those functions and send guests to sign-in.
 - Not set up yet: campaign, application and collaboration tables and pages.
 
 ## Product
@@ -59,6 +60,7 @@ Don't rely on training data for Next.js or Supabase: both change fast.
 - `npm run test:e2e` (`test:e2e:ui` for the UI mode): Playwright tests; they build and start the app themselves
 - `npx supabase start` / `npx supabase stop`: local Supabase in Docker (Studio http://127.0.0.1:54323, mail catcher http://127.0.0.1:54324)
 - `npx supabase status -o env`: local URLs and keys
+- `npx supabase db reset`: rebuild the local database from the migrations. It also wipes local users. Afterwards run `npx supabase stop && npx supabase start`: the reset restarts Auth without the custom email template, so confirmation links lose their token hash.
 
 The pre-commit hook (Husky) runs Prettier on staged files and `npm run typecheck`. A Claude Code hook runs ESLint on every file you edit. CI (`.github/workflows/ci.yml`) runs lint, typecheck and e2e on pull requests and on pushes to `dev` and `main`; it starts local Supabase for the e2e tests. The e2e tests need local Supabase running (`npx supabase start`) and read sign-up emails from Mailpit.
 
