@@ -20,7 +20,8 @@ Update this section in every PR that changes it.
 - Done (database): `profiles` table with the account type, created by a trigger on `auth.users` from `account_type` in the sign-up metadata; users can only read their own profile. Every new auth user must carry `account_type` (see the migration). `SECURITY DEFINER` functions live in the unexposed `private` schema.
 - Done (auth): sign-up through a Server Action with email confirmation; the emailed link opens `/auth/confirm` (token hash, template in `supabase/templates/`), whose button confirms the email (a GET alone does nothing, so mail scanners can't use up the link) and continues to the onboarding for the profile's account type. The hosted project still needs that email template and email confirmation turned on in the dashboard.
 - Done (auth): sign-in and sign-out through Server Actions; the header shows the signed-in email and a Sign out button (`getClaims()` in `src/lib/auth/session.ts`).
-- Next: proxy session refresh (until then, users are signed out about an hour after signing in: Server Components can't save refreshed tokens, and refresh token rotation then revokes the session), then protected onboarding.
+- Done (auth): `src/proxy.ts` refreshes the Supabase session on every page request and saves the new tokens (`src/lib/supabase/proxy.ts`). It only refreshes: pages, Server Actions and RLS still check the user themselves.
+- Next: protected onboarding (guests redirected to sign-in, onboarding saved to the database).
 - Not set up yet: campaign, application and collaboration tables and pages.
 
 ## Product
