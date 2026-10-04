@@ -16,10 +16,11 @@ A marketplace connecting athletes and brands.
 
 Update this section in every PR that changes it.
 
-- Done: Next.js scaffold, header with Explore menu, Supabase client (`src/lib/supabase/`) and CLI config, sign-in and onboarding pages (UI only, not wired to Supabase yet), Playwright e2e tests and GitHub Actions CI, Claude Code setup (skills, hooks, `code-reviewer` agent).
+- Done: Next.js scaffold, header with Explore menu, Supabase client (`src/lib/supabase/`) and CLI config, onboarding pages (UI only, not wired to Supabase yet), Playwright e2e tests and GitHub Actions CI, Claude Code setup (skills, hooks, `code-reviewer` agent).
 - Done (database): `profiles` table with the account type, created by a trigger on `auth.users` from `account_type` in the sign-up metadata; users can only read their own profile. Every new auth user must carry `account_type` (see the migration). `SECURITY DEFINER` functions live in the unexposed `private` schema.
 - Done (auth): sign-up through a Server Action with email confirmation; the emailed link opens `/auth/confirm` (token hash, template in `supabase/templates/`), whose button confirms the email (a GET alone does nothing, so mail scanners can't use up the link) and continues to the onboarding for the profile's account type. The hosted project still needs that email template and email confirmation turned on in the dashboard.
-- Next: sign-in, then proxy session refresh and protected onboarding.
+- Done (auth): sign-in and sign-out through Server Actions; the header shows the signed-in email and a Sign out button (`getClaims()` in `src/lib/auth/session.ts`).
+- Next: proxy session refresh (until then, users are signed out about an hour after signing in: Server Components can't save refreshed tokens, and refresh token rotation then revokes the session), then protected onboarding.
 - Not set up yet: campaign, application and collaboration tables and pages.
 
 ## Product
