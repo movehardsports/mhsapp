@@ -9,13 +9,15 @@ npm install
 npm run dev        # http://localhost:3000
 ```
 
-| Script              | What it does                                              |
-| ------------------- | --------------------------------------------------------- |
-| `npm run lint`      | ESLint                                                    |
-| `npm run typecheck` | Generates Next route types, then runs `tsc`               |
-| `npm run test:e2e`  | Builds the app and runs Playwright on desktop and mobile  |
+| Script              | What it does                                             |
+| ------------------- | -------------------------------------------------------- |
+| `npm run lint`      | ESLint                                                   |
+| `npm run typecheck` | Generates Next route types, then runs `tsc`              |
+| `npm run test:e2e`  | Builds the app and runs Playwright on desktop and mobile |
 
 CI runs all three on every pull request.
+
+The pre-commit hook (Husky) formats staged files with Prettier and runs `npm run typecheck`. The Claude Code hooks in `.claude/hooks/` need [`jq`](https://jqlang.org) (`brew install jq`): without it the git guardrail silently allows everything.
 
 ## Structure
 
