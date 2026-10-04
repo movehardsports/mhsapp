@@ -3,11 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
+import SignOutButton from "@/components/auth/SignOutButton";
 import { exploreLinks, navLinks, signInLink, signUpLink } from "@/components/header/navigation";
 import { primaryButton } from "@/components/ui/styles";
+import { signOut } from "@/lib/auth/actions";
 
 // Native modal <dialog> handles Escape, focus trapping and inerting the page.
-export default function MobileMenu() {
+// `email` is the signed-in user's, or null for guests.
+export default function MobileMenu({ email }: { email: string | null }) {
   const pathname = usePathname();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -103,7 +106,7 @@ export default function MobileMenu() {
           </button>
         </div>
 
-        <nav className="flex flex-1 flex-col px-4 py-4 text-2xl font-semibold uppercase tracking-wide">
+        <nav className="flex flex-1 flex-col px-4 py-4 text-2xl font-semibold tracking-wide uppercase">
           <details className="group border-b border-foreground/10 py-5">
             <summary className="flex cursor-pointer list-none items-center justify-between transition-opacity hover:opacity-70 [&::-webkit-details-marker]:hidden">
               Explore
@@ -122,7 +125,7 @@ export default function MobileMenu() {
                 <path d="m6 9 6 6 6-6" />
               </svg>
             </summary>
-            <ul className="mt-3 flex flex-col gap-1 text-base uppercase tracking-wide">
+            <ul className="mt-3 flex flex-col gap-1 text-base tracking-wide uppercase">
               {exploreLinks.map((link) => (
                 <li key={link.href}>
                   <Link
@@ -148,22 +151,32 @@ export default function MobileMenu() {
           ))}
         </nav>
 
-        <div className="grid shrink-0 grid-cols-2 gap-3 px-4 pb-8 pt-4 text-sm uppercase tracking-wide">
-          <Link
-            href={signInLink.href}
-            onClick={close}
-            className="rounded-button border border-foreground/15 px-4 py-3 text-center transition-colors hover:bg-foreground/5"
-          >
-            {signInLink.label}
-          </Link>
-          <Link
-            href={signUpLink.href}
-            onClick={close}
-            className={`${primaryButton} border border-transparent px-4 py-3 text-center`}
-          >
-            {signUpLink.label}
-          </Link>
-        </div>
+        {email ? (
+          <div className="flex shrink-0 flex-col gap-3 px-4 pt-4 pb-8 text-sm">
+            <p className="truncate text-foreground/70">{email}</p>
+            {/* Close right away: after signing out on "/" the path doesn't change. */}
+            <form action={signOut} onSubmit={close}>
+              <SignOutButton className="w-full rounded-button border border-foreground/15 px-4 py-3 tracking-wide uppercase transition-colors hover:bg-foreground/5" />
+            </form>
+          </div>
+        ) : (
+          <div className="grid shrink-0 grid-cols-2 gap-3 px-4 pt-4 pb-8 text-sm tracking-wide uppercase">
+            <Link
+              href={signInLink.href}
+              onClick={close}
+              className="rounded-button border border-foreground/15 px-4 py-3 text-center transition-colors hover:bg-foreground/5"
+            >
+              {signInLink.label}
+            </Link>
+            <Link
+              href={signUpLink.href}
+              onClick={close}
+              className={`${primaryButton} border border-transparent px-4 py-3 text-center`}
+            >
+              {signUpLink.label}
+            </Link>
+          </div>
+        )}
       </dialog>
     </>
   );
