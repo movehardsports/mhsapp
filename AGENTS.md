@@ -16,9 +16,10 @@ A marketplace connecting athletes and brands.
 
 Update this section in every PR that changes it.
 
-- Done: Next.js scaffold, header with Explore menu, Supabase client (`src/lib/supabase/`) and CLI config, sign-up, sign-in and onboarding pages (UI only, not wired to Supabase yet), Playwright e2e tests and GitHub Actions CI, Claude Code setup (skills, hooks, `code-reviewer` agent).
+- Done: Next.js scaffold, header with Explore menu, Supabase client (`src/lib/supabase/`) and CLI config, sign-in and onboarding pages (UI only, not wired to Supabase yet), Playwright e2e tests and GitHub Actions CI, Claude Code setup (skills, hooks, `code-reviewer` agent).
 - Done (database): `profiles` table with the account type, created by a trigger on `auth.users` from `account_type` in the sign-up metadata; users can only read their own profile. Every new auth user must carry `account_type` (see the migration). `SECURITY DEFINER` functions live in the unexposed `private` schema.
-- Next: wire sign-up to Supabase, then sign-in, proxy session refresh and onboarding.
+- Done (auth): sign-up through a Server Action with email confirmation; the emailed link opens `/auth/confirm` (token hash, template in `supabase/templates/`), whose button confirms the email (a GET alone does nothing, so mail scanners can't use up the link) and continues to the onboarding for the profile's account type. The hosted project still needs that email template and email confirmation turned on in the dashboard.
+- Next: sign-in, then proxy session refresh and protected onboarding.
 - Not set up yet: campaign, application and collaboration tables and pages.
 
 ## Product
@@ -57,7 +58,7 @@ Don't rely on training data for Next.js or Supabase: both change fast.
 - `npx supabase start` / `npx supabase stop`: local Supabase in Docker (Studio http://127.0.0.1:54323, mail catcher http://127.0.0.1:54324)
 - `npx supabase status -o env`: local URLs and keys
 
-The pre-commit hook (Husky) runs Prettier on staged files and `npm run typecheck`. A Claude Code hook runs ESLint on every file you edit. CI (`.github/workflows/ci.yml`) runs lint, typecheck and e2e on pull requests and on pushes to `dev` and `main`.
+The pre-commit hook (Husky) runs Prettier on staged files and `npm run typecheck`. A Claude Code hook runs ESLint on every file you edit. CI (`.github/workflows/ci.yml`) runs lint, typecheck and e2e on pull requests and on pushes to `dev` and `main`; it starts local Supabase for the e2e tests. The e2e tests need local Supabase running (`npx supabase start`) and read sign-up emails from Mailpit.
 
 ## Workflow
 
