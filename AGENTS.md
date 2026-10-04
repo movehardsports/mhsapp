@@ -53,8 +53,10 @@ Don't rely on training data for Next.js or Supabase: both change fast.
 - `npm run dev`: dev server on http://localhost:3000
 - `npm run lint`, `npm run typecheck`: run both before calling work done
 - `npm run test:e2e` (`test:e2e:ui` for the UI mode): Playwright tests; they build and start the app themselves
+- `npx supabase start` / `npx supabase stop`: local Supabase in Docker (Studio http://127.0.0.1:54323, mail catcher http://127.0.0.1:54324)
+- `npx supabase status -o env`: local URLs and keys
 
-The pre-commit hook (Husky) runs Prettier on staged files and `npm run typecheck`. A Claude Code hook runs ESLint on every file you edit.
+The pre-commit hook (Husky) runs Prettier on staged files and `npm run typecheck`. A Claude Code hook runs ESLint on every file you edit. CI (`.github/workflows/ci.yml`) runs lint, typecheck and e2e on pull requests and on pushes to `dev` and `main`.
 
 ## Workflow
 
