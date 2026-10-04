@@ -17,8 +17,9 @@ A marketplace connecting athletes and brands.
 Update this section in every PR that changes it.
 
 - Done: Next.js scaffold, header with Explore menu, Supabase client (`src/lib/supabase/`) and CLI config, sign-up, sign-in and onboarding pages (UI only, not wired to Supabase yet), Playwright e2e tests and GitHub Actions CI, Claude Code setup (skills, hooks, `code-reviewer` agent).
-- Next: first migrations (schema + RLS), then wire auth and onboarding to Supabase.
-- Not set up yet: database schema (`supabase/migrations/` is empty), auth Server Actions, proxy session refresh.
+- Done (database): `profiles` table with the account type, created by a trigger on `auth.users` from `account_type` in the sign-up metadata; users can only read their own profile. Every new auth user must carry `account_type` (see the migration). `SECURITY DEFINER` functions live in the unexposed `private` schema.
+- Next: wire sign-up to Supabase, then sign-in, proxy session refresh and onboarding.
+- Not set up yet: campaign, application and collaboration tables and pages.
 
 ## Product
 
