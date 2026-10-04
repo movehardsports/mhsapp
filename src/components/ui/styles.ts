@@ -8,3 +8,6 @@ export const checkableTile =
   "flex cursor-pointer items-center rounded-button border border-foreground/20 uppercase tracking-wide transition-colors hover:bg-foreground/5 has-checked:border-foreground has-checked:bg-foreground has-checked:text-background has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-foreground";
 
 export const textLink = "font-medium text-foreground underline-offset-4 hover:underline";
+
+// A message about a failed form submission, shown above the submit button.
+export const formError = "text-sm text-red-600 dark:text-red-400";

@@ -12,7 +12,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
 
@@ -32,6 +32,17 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium webkit
+
+      # The e2e tests sign up for real, so they need Auth, the database and Mailpit. Skip the
+      # services they don't use to start faster.
+      - name: Start local Supabase
+        run: npx supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime,storage-api,postgres-meta
+
+      - name: Point the app at local Supabase
+        run: |
+          npx supabase status -o env \
+            | sed -nE 's/^API_URL=(.*)/NEXT_PUBLIC_SUPABASE_URL=\1/p; s/^PUBLISHABLE_KEY=(.*)/NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=\1/p' \
+            | tr -d '"' >> "$GITHUB_ENV"
 
       # Playwright builds the app and starts it before running the tests (see playwright.config.ts).
       - name: Build and run E2E tests

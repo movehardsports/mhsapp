@@ -1,14 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useRef, type FormEvent } from "react";
+import { useActionState, useRef } from "react";
+import { type SignUpState, signUp } from "@/app/(auth)/sign-up/actions";
 import Field from "@/components/forms/Field";
 import SubmitButton from "@/components/forms/SubmitButton";
-import { checkableTile } from "@/components/ui/styles";
-import { accountTypeLabels, accountTypes, isAccountType, onboardingPath } from "@/lib/accountTypes";
+import { checkableTile, formError } from "@/components/ui/styles";
+import { accountTypeLabels, accountTypes } from "@/lib/accountTypes";
+
+const initialState: SignUpState = { status: "idle" };
 
 export default function SignUpForm() {
-  const router = useRouter();
+  const [state, formAction] = useActionState(signUp, initialState);
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmRef = useRef<HTMLInputElement>(null);
 
@@ -20,35 +22,49 @@ export default function SignUpForm() {
     confirm.setCustomValidity(mismatch ? "Passwords don't match" : "");
   };
 
-  // UI only for now: nothing is saved, we just continue to the onboarding for the chosen
-  // account type. preventDefault also keeps the default GET submit from putting the password
-  // in the URL. Wire this up to real sign-up once auth exists.
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const accountType = new FormData(event.currentTarget).get("accountType");
-    // The radios are required, so this only fails if the markup and the list drift apart.
-    if (!isAccountType(accountType)) throw new Error(`Unknown account type: ${accountType}`);
-    router.push(onboardingPath(accountType));
-  };
+  if (state.status === "check-email") {
+    return (
+      <div role="status" className="flex flex-col gap-3">
+        <h2 className="text-xl font-semibold">Check your email</h2>
+        <p className="text-foreground/70">
+          We sent a confirmation link to <strong className="text-foreground">{state.email}</strong>.
+          Open it to finish signing up.
+        </p>
+      </div>
+    );
+  }
+
+  const previous = state.status === "error" ? state : null;
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-5">
+    <form action={formAction} className="flex flex-col gap-5">
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-2 text-sm font-medium">Account type</legend>
         <div className="grid grid-cols-2 gap-3">
           {accountTypes.map((type) => (
-            <label
-              key={type}
-              className={`${checkableTile} justify-center px-4 py-3 text-sm`}
-            >
-              <input type="radio" name="accountType" value={type} required className="sr-only" />
+            <label key={type} className={`${checkableTile} justify-center px-4 py-3 text-sm`}>
+              <input
+                type="radio"
+                name="accountType"
+                value={type}
+                required
+                defaultChecked={previous?.accountType === type}
+                className="sr-only"
+              />
               {accountTypeLabels[type]}
             </label>
           ))}
         </div>
       </fieldset>
 
-      <Field id="email" label="Email" type="email" required autoComplete="email" />
+      <Field
+        id="email"
+        label="Email"
+        type="email"
+        required
+        autoComplete="email"
+        defaultValue={previous?.email}
+      />
       <Field
         ref={passwordRef}
         id="password"
@@ -69,6 +85,12 @@ export default function SignUpForm() {
         autoComplete="new-password"
         onInput={checkPasswordsMatch}
       />
+
+      {previous && (
+        <p role="alert" className={formError}>
+          {previous.message}
+        </p>
+      )}
 
       <SubmitButton>Sign up</SubmitButton>
     </form>
