@@ -1,3 +1,5 @@
+import type { Database } from "@/lib/supabase/database.types";
+
 // Grouped by theme; the pickers show the groups, and the sports within them, in this order.
 export const sportGroups = [
   {
@@ -44,3 +46,19 @@ export const sportGroups = [
 ] as const;
 
 export type Sport = (typeof sportGroups)[number]["options"][number]["id"];
+
+const sportIds: readonly string[] = sportGroups.flatMap((group) =>
+  group.options.map((option) => option.id)
+);
+
+export function isSport(value: unknown): value is Sport {
+  return typeof value === "string" && sportIds.includes(value);
+}
+
+// The database stores sports as the `sport` enum (supabase/migrations). This fails typecheck
+// when the two lists drift apart; regenerate the types with `npm run db:types` after a migration.
+type DatabaseSport = Database["public"]["Enums"]["sport"];
+type Assert<T extends true> = T;
+export type SportsMatchDatabase = Assert<
+  [Sport] extends [DatabaseSport] ? ([DatabaseSport] extends [Sport] ? true : false) : false
+>;

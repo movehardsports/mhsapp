@@ -9,6 +9,7 @@
     "lint": "eslint",
     "prepare": "husky",
     "typecheck": "next typegen && tsc --noEmit",
+    "db:types": "supabase gen types --local --lang typescript --schema public > src/lib/supabase/database.types.ts && prettier --write src/lib/supabase/database.types.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },
