@@ -73,7 +73,8 @@ test("signing in shows the account in the header, and signing out ends it", asyn
   await page.context().clearCookies();
 
   await signIn(page, email, TEST_PASSWORD);
-  await expect(page).toHaveURL("/");
+  // Onboarding isn't done yet, so signing in continues there.
+  await expect(page).toHaveURL("/onboarding/athlete");
   let account = await accountArea(page);
   await expect(account.getByText(email).filter({ visible: true })).toBeVisible();
   await expect(account.getByRole("link", { name: "Sign in" })).toHaveCount(0);
@@ -83,9 +84,22 @@ test("signing in shows the account in the header, and signing out ends it", asyn
   account = await accountArea(page);
   await account.getByRole("button", { name: "Sign out" }).click();
 
-  // Wait for the signed-out header (the page is on "/" already, so the URL can't tell).
+  await expect(page).toHaveURL("/");
   await expect(page.getByRole("banner").getByText(email)).toHaveCount(0);
   account = await accountArea(page);
   await expect(account.getByRole("link", { name: "Sign in" })).toBeVisible();
   await expect(account.getByText(email)).toHaveCount(0);
+});
+
+test("signing in after onboarding goes to the home page", async ({ page }, testInfo) => {
+  const email = await signUp(page, testInfo, { accountType: "Brand" });
+  await gotoHydrated(page, "/onboarding/brand");
+  await page.getByLabel("Brand name").fill("Move Hard");
+  await page.getByRole("group", { name: "Sports" }).getByText("Hyrox", { exact: true }).click();
+  await page.getByRole("main").getByRole("button", { name: "Continue" }).click();
+  await expect(page).toHaveURL("/");
+  await page.context().clearCookies();
+
+  await signIn(page, email, TEST_PASSWORD);
+  await expect(page).toHaveURL("/");
 });

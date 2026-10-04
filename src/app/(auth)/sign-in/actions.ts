@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { onboardingPath } from "@/lib/accountTypes";
+import { getAccount, hasOnboarded } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 export type SignInState =
@@ -38,7 +40,19 @@ export async function signIn(_prevState: SignInState, formData: FormData): Promi
     }
   }
 
+  // Users who haven't finished onboarding continue there; everyone else goes home. The user is
+  // signed in either way, so if the check fails, just go home.
+  let destination = "/";
+  try {
+    const account = await getAccount(supabase);
+    if (account && !(await hasOnboarded(supabase, account))) {
+      destination = onboardingPath(account.accountType);
+    }
+  } catch (checkError) {
+    console.error("Checking the onboarding after sign-in failed", checkError);
+  }
+
   // The header shows the signed-in state on every page, so refresh the whole layout.
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect(destination);
 }
