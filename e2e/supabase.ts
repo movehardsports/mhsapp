@@ -1,10 +1,17 @@
+import { existsSync } from "node:fs";
 import { type BrowserContext, expect } from "@playwright/test";
 
 // The tests talk to local Supabase with the same URL and publishable key as the app.
-// Playwright doesn't read .env.local itself; variables already set (e.g. in CI) win.
-process.loadEnvFile(".env.local");
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
+// Playwright doesn't read .env.local itself. CI has no such file and sets the variables in
+// the environment instead; variables already set win over the file.
+if (existsSync(".env.local")) process.loadEnvFile(".env.local");
+function requireEnv(name: string) {
+  const value = process.env[name];
+  if (!value) throw new Error(`Set ${name} for the e2e tests (see .env.local)`);
+  return value;
+}
+const SUPABASE_URL = requireEnv("NEXT_PUBLIC_SUPABASE_URL");
+const PUBLISHABLE_KEY = requireEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
 
 // The Supabase session cookie: `sb-<ref>-auth-token`, split into `.0`, `.1`, … chunks when
 // long, holding "base64-" plus the base64url-encoded session JSON.
