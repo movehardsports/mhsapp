@@ -23,6 +23,7 @@ export default defineConfig({
         "onboarding.spec.ts",
         "session.spec.ts",
         "dashboard.spec.ts",
+        "campaigns-rls.spec.ts",
       ],
       use: { ...devices["Desktop Chrome"] },
     },

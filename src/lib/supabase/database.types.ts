@@ -99,6 +99,47 @@ export type Database = {
           },
         ];
       };
+      campaigns: {
+        Row: {
+          brand_id: string;
+          created_at: string;
+          deadline: string | null;
+          description: string;
+          id: string;
+          sports: Database["public"]["Enums"]["sport"][];
+          title: string;
+          type: Database["public"]["Enums"]["campaign_type"];
+        };
+        Insert: {
+          brand_id: string;
+          created_at?: string;
+          deadline?: string | null;
+          description: string;
+          id?: string;
+          sports: Database["public"]["Enums"]["sport"][];
+          title: string;
+          type: Database["public"]["Enums"]["campaign_type"];
+        };
+        Update: {
+          brand_id?: string;
+          created_at?: string;
+          deadline?: string | null;
+          description?: string;
+          id?: string;
+          sports?: Database["public"]["Enums"]["sport"][];
+          title?: string;
+          type?: Database["public"]["Enums"]["campaign_type"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_brand_id_fkey";
+            columns: ["brand_id"];
+            isOneToOne: false;
+            referencedRelation: "brands";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           account_type: Database["public"]["Enums"]["account_type"];
@@ -140,6 +181,7 @@ export type Database = {
     };
     Enums: {
       account_type: "athlete" | "brand";
+      campaign_type: "sponsorship" | "event" | "ambassador";
       sport:
         | "triathlon"
         | "hyrox"
@@ -269,6 +311,7 @@ export const Constants = {
   public: {
     Enums: {
       account_type: ["athlete", "brand"],
+      campaign_type: ["sponsorship", "event", "ambassador"],
       sport: [
         "triathlon",
         "hyrox",
