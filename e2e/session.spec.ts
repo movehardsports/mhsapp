@@ -42,12 +42,12 @@ async function expireSession(context: BrowserContext) {
 
 test("an expired session is refreshed and stays signed in", async ({ page, context }, testInfo) => {
   // Signing up and confirming signs the page in.
-  const email = await signUp(page, testInfo);
+  await signUp(page, testInfo);
   const oldRefreshToken = await expireSession(context);
 
   await page.goto("/");
   const banner = page.getByRole("banner");
-  await expect(banner.getByText(email).first()).toBeAttached();
+  await expect(banner.getByRole("link", { name: "Dashboard" }).first()).toBeAttached();
   // The proxy refreshed the session and saved the new tokens in the browser.
   const { session } = await readSession(context);
   expect(session.refresh_token).not.toBe(oldRefreshToken);

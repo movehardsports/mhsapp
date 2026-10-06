@@ -4,13 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
-// The signed-in user's email, or null for guests. getClaims verifies the token instead of
-// trusting the cookie as-is, unlike getSession.
-export async function getSignedInEmail() {
+// Whether a user is signed in. getClaims verifies the token instead of trusting the cookie
+// as-is, unlike getSession.
+export async function isSignedIn() {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
-  const email = data?.claims.email;
-  return typeof email === "string" && email !== "" ? email : null;
+  return Boolean(data?.claims.sub);
 }
 
 // The signed-in user's id and account type, or null for guests. The account type comes from
