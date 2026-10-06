@@ -2,14 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { requireAccount } from "@/lib/auth/session";
-import {
-  birthYearRange,
-  cleanText,
-  MIN_AGE,
-  parseBirthYear,
-  parseSports,
-} from "@/lib/onboarding/validation";
+import { birthYearRange, MIN_AGE, parseBirthYear } from "@/lib/onboarding/validation";
 import { createClient } from "@/lib/supabase/server";
+import { cleanText, parseSports } from "@/lib/validation";
 
 export type AthleteOnboardingValues = {
   firstName: string;

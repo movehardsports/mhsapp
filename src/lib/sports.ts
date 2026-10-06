@@ -51,6 +51,10 @@ const sportIds: readonly string[] = sportGroups.flatMap((group) =>
   group.options.map((option) => option.id)
 );
 
+export const sportLabels = Object.fromEntries(
+  sportGroups.flatMap((group) => group.options.map((option) => [option.id, option.label]))
+) as Record<Sport, string>;
+
 export function isSport(value: unknown): value is Sport {
   return typeof value === "string" && sportIds.includes(value);
 }

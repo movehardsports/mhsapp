@@ -2,8 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { requireAccount } from "@/lib/auth/session";
-import { cleanText, parseSports } from "@/lib/onboarding/validation";
 import { createClient } from "@/lib/supabase/server";
+import { cleanText, parseSports } from "@/lib/validation";
 
 export type BrandOnboardingValues = {
   brandName: string;

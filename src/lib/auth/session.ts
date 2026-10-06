@@ -55,3 +55,13 @@ export async function hasOnboarded(
   if (error) throw new Error(`Reading the ${table} profile failed: ${error.code}`);
   return data !== null;
 }
+
+// For brand-only pages and their actions after onboarding: guests go to sign in, athletes to
+// their dashboard, and brands without a profile to the onboarding.
+export async function requireOnboardedBrand(supabase: Supabase) {
+  const account = await getAccount(supabase);
+  if (!account) redirect("/sign-in");
+  if (account.accountType !== "brand") redirect("/dashboard");
+  if (!(await hasOnboarded(supabase, account))) redirect(onboardingPath("brand"));
+  return { userId: account.userId };
+}

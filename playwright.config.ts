@@ -17,18 +17,21 @@ export default defineConfig({
     {
       name: "desktop-chrome",
       testMatch: [
+        "campaigns.spec.ts",
         "header.spec.ts",
         "sign-up.spec.ts",
         "sign-in.spec.ts",
         "onboarding.spec.ts",
         "session.spec.ts",
         "dashboard.spec.ts",
+        "campaigns-rls.spec.ts",
       ],
       use: { ...devices["Desktop Chrome"] },
     },
     {
       name: "desktop-safari",
       testMatch: [
+        "campaigns.spec.ts",
         "header.spec.ts",
         "sign-up.spec.ts",
         "sign-in.spec.ts",
@@ -41,6 +44,7 @@ export default defineConfig({
     {
       name: "mobile-chrome",
       testMatch: [
+        "campaigns.spec.ts",
         "mobile-menu.spec.ts",
         "sign-up.spec.ts",
         "sign-in.spec.ts",
@@ -51,6 +55,7 @@ export default defineConfig({
     {
       name: "mobile-safari",
       testMatch: [
+        "campaigns.spec.ts",
         "mobile-menu.spec.ts",
         "sign-up.spec.ts",
         "sign-in.spec.ts",
