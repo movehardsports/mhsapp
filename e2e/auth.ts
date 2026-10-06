@@ -54,3 +54,16 @@ export async function completeBrandOnboarding(page: Page) {
   await page.getByRole("main").getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL("/");
 }
+
+// Saves an athlete's onboarding with the minimum it needs, for a user signed in as an athlete.
+export async function completeAthleteOnboarding(page: Page) {
+  await gotoHydrated(page, "/onboarding/athlete");
+  await page.getByLabel("First name").fill("Jane");
+  await page.getByLabel("Last name").fill("Doe");
+  await page.getByLabel("Nickname").fill("JD");
+  await page.getByLabel("Year of birth").fill("1998");
+  await page.getByLabel("City").fill("Warsaw");
+  await page.getByRole("group", { name: "Sports" }).getByText("Hyrox", { exact: true }).click();
+  await page.getByRole("main").getByRole("button", { name: "Continue" }).click();
+  await expect(page).toHaveURL("/");
+}

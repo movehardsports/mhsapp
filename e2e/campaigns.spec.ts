@@ -136,4 +136,33 @@ test.describe("form", () => {
     await submit(page).click();
     await expect(alert(page)).toHaveText("Choose at least one sport.");
   });
+
+  test("the dashboard lists the brand's campaigns, newest first", async ({ page }) => {
+    await gotoHydrated(page, "/dashboard");
+    const campaigns = main(page).getByRole("region", { name: "Campaigns" });
+    await expect(campaigns.getByText("No campaigns yet")).toBeVisible();
+
+    await campaigns.getByRole("link", { name: "New campaign" }).click();
+    await expect(page).toHaveURL("/dashboard/campaigns/new");
+    await fillCampaign(page, { title: "First", deadline: "2099-12-31" });
+    await submit(page).click();
+    await expect(page).toHaveURL("/dashboard");
+
+    await gotoHydrated(page, "/dashboard/campaigns/new");
+    await fillCampaign(page, { title: "Second", type: "Ambassador", sport: "Surf" });
+    await submit(page).click();
+    await expect(page).toHaveURL("/dashboard");
+
+    const items = campaigns.getByRole("listitem");
+    await expect(items).toHaveCount(2);
+    await expect(items.nth(0)).toContainText("Second");
+    await expect(items.nth(0)).toContainText("Ambassador");
+    await expect(items.nth(0)).toContainText("Surf");
+    await expect(items.nth(0)).not.toContainText("Apply by");
+    await expect(items.nth(1)).toContainText("First");
+    await expect(items.nth(1)).toContainText("Event");
+    await expect(items.nth(1)).toContainText("Hyrox");
+    await expect(items.nth(1)).toContainText("Apply by 31 Dec 2099");
+    await expect(campaigns.getByText("No campaigns yet")).toHaveCount(0);
+  });
 });
