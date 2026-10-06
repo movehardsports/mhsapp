@@ -1,14 +1,12 @@
 import Link from "next/link";
-import SignOutButton from "@/components/auth/SignOutButton";
 import ExploreMenu from "@/components/header/ExploreMenu";
 import MobileMenu from "@/components/header/MobileMenu";
-import { navLinks, signInLink, signUpLink } from "@/components/header/navigation";
+import { dashboardLink, navLinks, signInLink, signUpLink } from "@/components/header/navigation";
 import { primaryButton } from "@/components/ui/styles";
-import { signOut } from "@/lib/auth/actions";
-import { getSignedInEmail } from "@/lib/auth/session";
+import { isSignedIn } from "@/lib/auth/session";
 
 export default async function Header() {
-  const email = await getSignedInEmail();
+  const signedIn = await isSignedIn();
 
   return (
     <header className="relative border-b border-foreground/10">
@@ -29,18 +27,16 @@ export default async function Header() {
           ))}
         </nav>
         <div className="hidden items-center gap-3 justify-self-end text-sm tracking-wide uppercase md:flex">
-          {email ? (
-            <>
-              <span
-                title={email}
-                className="max-w-48 truncate tracking-normal text-foreground/70 normal-case"
-              >
-                {email}
-              </span>
-              <form action={signOut}>
-                <SignOutButton className="rounded-button px-4 py-2 tracking-wide uppercase transition-colors hover:bg-foreground/5" />
-              </form>
-            </>
+          {/* The key stops React from reusing the Dashboard link as Sign in after signing out,
+              which would fade the button's background out instead of dropping it. */}
+          {signedIn ? (
+            <Link
+              key="dashboard"
+              href={dashboardLink.href}
+              className={`${primaryButton} px-4 py-2`}
+            >
+              {dashboardLink.label}
+            </Link>
           ) : (
             <>
               <Link
@@ -56,7 +52,7 @@ export default async function Header() {
           )}
         </div>
         <div className="justify-self-end md:hidden">
-          <MobileMenu email={email} />
+          <MobileMenu signedIn={signedIn} />
         </div>
       </div>
     </header>

@@ -3,14 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
-import SignOutButton from "@/components/auth/SignOutButton";
-import { exploreLinks, navLinks, signInLink, signUpLink } from "@/components/header/navigation";
+import {
+  dashboardLink,
+  exploreLinks,
+  navLinks,
+  signInLink,
+  signUpLink,
+} from "@/components/header/navigation";
 import { primaryButton } from "@/components/ui/styles";
-import { signOut } from "@/lib/auth/actions";
 
 // Native modal <dialog> handles Escape, focus trapping and inerting the page.
-// `email` is the signed-in user's, or null for guests.
-export default function MobileMenu({ email }: { email: string | null }) {
+export default function MobileMenu({ signedIn }: { signedIn: boolean }) {
   const pathname = usePathname();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -151,16 +154,22 @@ export default function MobileMenu({ email }: { email: string | null }) {
           ))}
         </nav>
 
-        {email ? (
-          <div className="flex shrink-0 flex-col gap-3 px-4 pt-4 pb-8 text-sm">
-            <p className="truncate text-foreground/70">{email}</p>
-            {/* Close right away: after signing out on "/" the path doesn't change. */}
-            <form action={signOut} onSubmit={close}>
-              <SignOutButton className="w-full rounded-button border border-foreground/15 px-4 py-3 tracking-wide uppercase transition-colors hover:bg-foreground/5" />
-            </form>
+        {/* Keys keep React from turning one set of links into the other, as in Header. */}
+        {signedIn ? (
+          <div key="signed-in" className="shrink-0 px-4 pt-4 pb-8 text-sm tracking-wide uppercase">
+            <Link
+              href={dashboardLink.href}
+              onClick={close}
+              className={`${primaryButton} block px-4 py-3 text-center`}
+            >
+              {dashboardLink.label}
+            </Link>
           </div>
         ) : (
-          <div className="grid shrink-0 grid-cols-2 gap-3 px-4 pt-4 pb-8 text-sm tracking-wide uppercase">
+          <div
+            key="guest"
+            className="grid shrink-0 grid-cols-2 gap-3 px-4 pt-4 pb-8 text-sm tracking-wide uppercase"
+          >
             <Link
               href={signInLink.href}
               onClick={close}

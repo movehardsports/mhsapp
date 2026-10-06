@@ -45,3 +45,12 @@ export async function accountArea(page: Page) {
   }).toPass();
   return menu;
 }
+
+// Saves a brand's onboarding with the minimum it needs, for a user signed in as a brand.
+export async function completeBrandOnboarding(page: Page) {
+  await gotoHydrated(page, "/onboarding/brand");
+  await page.getByLabel("Brand name").fill("Move Hard");
+  await page.getByRole("group", { name: "Sports" }).getByText("Hyrox", { exact: true }).click();
+  await page.getByRole("main").getByRole("button", { name: "Continue" }).click();
+  await expect(page).toHaveURL("/");
+}
