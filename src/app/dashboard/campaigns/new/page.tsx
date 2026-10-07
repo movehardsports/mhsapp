@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { createCampaign } from "@/app/dashboard/campaigns/actions";
 import CampaignForm from "@/components/campaigns/CampaignForm";
 import PageTitle from "@/components/ui/PageTitle";
 import { requireOnboardedBrand } from "@/lib/auth/session";
@@ -16,7 +17,12 @@ export default async function NewCampaignPage() {
   return (
     <main className="mx-auto w-full max-w-sm px-4 py-16 lg:max-w-xl">
       <PageTitle>New campaign</PageTitle>
-      <CampaignForm today={todayIsoDate()} />
+      <CampaignForm
+        action={createCampaign}
+        initialValues={{ type: "", title: "", description: "", sports: [], deadline: "" }}
+        submitLabel="Create campaign"
+        minDeadline={todayIsoDate()}
+      />
     </main>
   );
 }

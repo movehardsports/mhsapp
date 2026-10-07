@@ -1,17 +1,19 @@
 import { expect, type Page, test } from "@playwright/test";
 import { completeBrandOnboarding, signUp } from "./auth";
 import { gotoHydrated } from "./hydration";
-import { rest, userId } from "./supabase";
+import { accessToken, rest, userId } from "./supabase";
 
 const main = (page: Page) => page.getByRole("main");
 const alert = (page: Page) => main(page).getByRole("alert");
 const submit = (page: Page) => main(page).getByRole("button", { name: "Create campaign" });
 const sportsGroup = (page: Page) => page.getByRole("group", { name: "Sports" });
 
-// Removes the browser's own checks, to test the Server Action's.
+// Removes the browser's own checks, to test the Server Action's. The campaign form comes
+// first; the edit page has a delete form below it.
 const skipBrowserValidation = (page: Page) =>
   main(page)
     .locator("form")
+    .first()
     .evaluate((form) => form.setAttribute("novalidate", ""));
 
 // YYYY-MM-DD in UTC, `days` from today; the app uses the UTC date too.
@@ -164,5 +166,159 @@ test.describe("form", () => {
     await expect(items.nth(1)).toContainText("Hyrox");
     await expect(items.nth(1)).toContainText("Apply by 31 Dec 2099");
     await expect(campaigns.getByText("No campaigns yet")).toHaveCount(0);
+  });
+});
+
+test.describe("edit and delete", () => {
+  // Creates a campaign straight through the Data API; the database doesn't check that the
+  // deadline is in the future, so this can also make one whose deadline has passed.
+  async function createCampaign(page: Page, deadline: string | null = null) {
+    const response = await rest("campaigns", {
+      method: "POST",
+      token: await accessToken(page.context()),
+      body: {
+        brand_id: await userId(page.context()),
+        type: "event",
+        title: "Spring Hyrox Open",
+        description: "Race day in Warsaw.",
+        sports: ["hyrox"],
+        deadline,
+      },
+    });
+    expect(response.status).toBe(201);
+    const [{ id }] = await (
+      await rest(`campaigns?brand_id=eq.${await userId(page.context())}&select=id`)
+    ).json();
+    return id as string;
+  }
+
+  const save = (page: Page) => main(page).getByRole("button", { name: "Save changes" });
+
+  test.beforeEach(async ({ page }, testInfo) => {
+    await signUp(page, testInfo, { accountType: "Brand" });
+    await completeBrandOnboarding(page);
+  });
+
+  test("opens from the dashboard with the saved values and saves changes", async ({ page }) => {
+    await createCampaign(page, "2099-12-31");
+    await gotoHydrated(page, "/dashboard");
+    await main(page).getByRole("link", { name: "Edit Spring Hyrox Open" }).click();
+    await expect(page).toHaveURL(/\/dashboard\/campaigns\/[0-9a-f-]+\/edit$/);
+    await expect(page).toHaveTitle("Edit campaign | MHS");
+
+    await expect(page.getByLabel("Title")).toHaveValue("Spring Hyrox Open");
+    await expect(page.getByLabel("Description")).toHaveValue("Race day in Warsaw.");
+    await expect(main(page).getByLabel("Event")).toBeChecked();
+    await expect(sportsGroup(page).getByLabel("Hyrox")).toBeChecked();
+    await expect(page.getByLabel("Deadline")).toHaveValue("2099-12-31");
+
+    await main(page).getByText("Ambassador", { exact: true }).click();
+    await page.getByLabel("Title").fill("Summer Surf Crew");
+    await page.getByLabel("Description").fill("New text");
+    await sportsGroup(page).getByText("Hyrox", { exact: true }).click();
+    await sportsGroup(page).getByText("Surf", { exact: true }).click();
+    await page.getByLabel("Deadline").fill("2099-06-30");
+    await save(page).click();
+
+    await expect(page).toHaveURL("/dashboard");
+    expect(await campaignsOf(page)).toEqual([
+      {
+        type: "ambassador",
+        title: "Summer Surf Crew",
+        description: "New text",
+        sports: ["surf"],
+        deadline: "2099-06-30",
+      },
+    ]);
+  });
+
+  test("rejects invalid changes on the server, keeping the values", async ({ page }) => {
+    const id = await createCampaign(page);
+    await gotoHydrated(page, `/dashboard/campaigns/${id}/edit`);
+    await page.getByLabel("Title").fill("Changed");
+    await page.getByLabel("Description").fill("   ");
+    await skipBrowserValidation(page);
+    await save(page).click();
+    await expect(alert(page)).toHaveText("Enter a description (up to 5000 characters).");
+    await expect(page.getByLabel("Title")).toHaveValue("Changed");
+    const [campaign] = await campaignsOf(page);
+    expect(campaign.title).toBe("Spring Hyrox Open");
+  });
+
+  test("keeps a deadline that has passed, but won't set a new one", async ({ page }) => {
+    const passed = isoDate(-10);
+    const id = await createCampaign(page, passed);
+    await gotoHydrated(page, `/dashboard/campaigns/${id}/edit`);
+    await expect(page.getByLabel("Deadline")).toHaveAttribute("min", passed);
+
+    await page.getByLabel("Title").fill("Renamed");
+    await save(page).click();
+    await expect(page).toHaveURL("/dashboard");
+    let [campaign] = await campaignsOf(page);
+    expect(campaign).toMatchObject({ title: "Renamed", deadline: passed });
+
+    await gotoHydrated(page, `/dashboard/campaigns/${id}/edit`);
+    await page.getByLabel("Deadline").fill(isoDate(-1));
+    await skipBrowserValidation(page);
+    await save(page).click();
+    await expect(alert(page)).toHaveText("Pick a deadline from today on, or leave it empty.");
+    [campaign] = await campaignsOf(page);
+    expect(campaign.deadline).toBe(passed);
+  });
+
+  test("deletes a campaign from its edit page", async ({ page }) => {
+    const id = await createCampaign(page);
+    await gotoHydrated(page, `/dashboard/campaigns/${id}/edit`);
+    await main(page).getByRole("button", { name: "Delete campaign" }).click();
+
+    await expect(page).toHaveURL("/dashboard");
+    await expect(main(page).getByText("No campaigns yet")).toBeVisible();
+    expect(await campaignsOf(page)).toEqual([]);
+  });
+
+  test("deletes a campaign straight from the dashboard", async ({ page }) => {
+    await createCampaign(page);
+    await gotoHydrated(page, "/dashboard");
+    const item = main(page).getByRole("listitem").filter({ hasText: "Spring Hyrox Open" });
+    await item.getByRole("button", { name: "Delete Spring Hyrox Open" }).click();
+
+    await expect(main(page).getByText("No campaigns yet")).toBeVisible();
+    expect(await campaignsOf(page)).toEqual([]);
+  });
+
+  test("another brand's campaign and unknown ids are not found", async ({ page, browser }) => {
+    const other = await browser.newPage();
+    await signUp(other, test.info(), { accountType: "Brand" });
+    await completeBrandOnboarding(other);
+    const othersId = await createCampaign(other);
+
+    for (const id of [othersId, crypto.randomUUID(), "not-a-uuid"]) {
+      const response = await page.goto(`/dashboard/campaigns/${id}/edit`);
+      expect(response?.status(), id).toBe(404);
+    }
+    await other.close();
+  });
+
+  test("saving a campaign deleted meanwhile says it's gone", async ({ page }) => {
+    const id = await createCampaign(page);
+    await gotoHydrated(page, `/dashboard/campaigns/${id}/edit`);
+    // Deleted elsewhere (e.g. another tab) while the form is open.
+    const deleted = await rest(`campaigns?id=eq.${id}`, {
+      method: "DELETE",
+      token: await accessToken(page.context()),
+    });
+    expect(deleted.status).toBe(204);
+
+    await page.getByLabel("Title").fill("Changed");
+    await save(page).click();
+    await expect(alert(page)).toHaveText("This campaign no longer exists.");
+    await expect(page.getByLabel("Title")).toHaveValue("Changed");
+  });
+
+  test("guests are sent to sign in", async ({ page }) => {
+    const id = await createCampaign(page);
+    await page.context().clearCookies();
+    await page.goto(`/dashboard/campaigns/${id}/edit`);
+    await expect(page).toHaveURL("/sign-in");
   });
 });

@@ -1,11 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import {
-  type CampaignFormState,
-  type CampaignValues,
-  createCampaign,
-} from "@/app/dashboard/campaigns/new/actions";
+import type { CampaignFormState, CampaignValues } from "@/app/dashboard/campaigns/actions";
 import Field from "@/components/forms/Field";
 import SubmitButton from "@/components/forms/SubmitButton";
 import TagPicker from "@/components/forms/TagPicker";
@@ -14,12 +10,20 @@ import { campaignTypeLabels, campaignTypes } from "@/lib/campaignTypes";
 import { sportGroups } from "@/lib/sports";
 
 const initialState: CampaignFormState = { status: "idle" };
-const empty: CampaignValues = { type: "", title: "", description: "", sports: [], deadline: "" };
 
-// `today` (YYYY-MM-DD, UTC) comes from the server, so the deadline's `min` matches its check.
-export default function CampaignForm({ today }: { today: string }) {
-  const [state, formAction] = useActionState(createCampaign, initialState);
-  const values = state.status === "error" ? state.values : empty;
+type Props = {
+  action: (state: CampaignFormState, formData: FormData) => Promise<CampaignFormState>;
+  initialValues: CampaignValues;
+  submitLabel: string;
+  // The earliest deadline the date input allows (YYYY-MM-DD, UTC), from the server: today, or
+  // a saved deadline that has already passed so it can stay. The action still rejects any other
+  // past date.
+  minDeadline: string;
+};
+
+export default function CampaignForm({ action, initialValues, submitLabel, minDeadline }: Props) {
+  const [state, formAction] = useActionState(action, initialState);
+  const values = state.status === "error" ? state.values : initialValues;
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
@@ -67,7 +71,7 @@ export default function CampaignForm({ today }: { today: string }) {
         id="deadline"
         label="Deadline"
         type="date"
-        min={today}
+        min={minDeadline}
         hint="Optional. The last day to apply."
         defaultValue={values.deadline}
       />
@@ -78,7 +82,7 @@ export default function CampaignForm({ today }: { today: string }) {
         </p>
       )}
 
-      <SubmitButton>Create campaign</SubmitButton>
+      <SubmitButton>{submitLabel}</SubmitButton>
     </form>
   );
 }

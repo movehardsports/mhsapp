@@ -34,9 +34,11 @@ export function todayIsoDate(now = new Date()) {
 }
 
 // An optional date input: empty means no deadline; otherwise a real date, not before today.
+// `current` is the saved deadline when editing: keeping it is fine even once it has passed.
 export function parseDeadline(
   value: FormDataEntryValue | null,
-  today: string
+  today: string,
+  current: string | null = null
 ): { ok: true; deadline: string | null } | { ok: false } {
   if (value === null || value === "") return { ok: true, deadline: null };
   if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return { ok: false };
@@ -45,5 +47,12 @@ export function parseDeadline(
   if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) {
     return { ok: false };
   }
-  return value >= today ? { ok: true, deadline: value } : { ok: false };
+  // Only the "not before today" rule makes an exception for the saved deadline.
+  return value >= today || value === current ? { ok: true, deadline: value } : { ok: false };
+}
+
+// A UUID in its canonical text form, e.g. a campaign id from the URL. Checking it first turns
+// a mistyped link into a 404 instead of a database error.
+export function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 }

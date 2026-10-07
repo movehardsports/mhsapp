@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test, type TestInfo } from "@playwright/test";
 import { completeBrandOnboarding, signUp } from "./auth";
 import { accessToken, rest, userId } from "./supabase";
 
@@ -81,4 +81,93 @@ test("the database rejects a blank or padded description", async ({ page }, test
     });
     expect(response.status, JSON.stringify(description)).toBe(400);
   }
+});
+
+test.describe("updating and deleting", () => {
+  // A brand with one campaign, as seen through the Data API.
+  async function brandWithCampaign(page: Page, testInfo: TestInfo) {
+    await signUp(page, testInfo, { accountType: "Brand" });
+    await completeBrandOnboarding(page);
+    const brandId = await userId(page.context());
+    const token = await accessToken(page.context());
+    const created = await rest("campaigns", {
+      method: "POST",
+      token,
+      body: campaign(brandId),
+    });
+    expect(created.status).toBe(201);
+    const [{ id }] = await (await rest(`campaigns?brand_id=eq.${brandId}&select=id`)).json();
+    return { id: id as string, brandId, token };
+  }
+
+  const titleOf = async (id: string) =>
+    (await (await rest(`campaigns?id=eq.${id}&select=title`)).json())[0]?.title;
+
+  test("a brand updates and deletes its own campaign", async ({ page }, testInfo) => {
+    const { id, token } = await brandWithCampaign(page, testInfo);
+
+    const updated = await rest(`campaigns?id=eq.${id}`, {
+      method: "PATCH",
+      token,
+      body: { title: "Renamed" },
+    });
+    expect(updated.status).toBe(204);
+    expect(await titleOf(id)).toBe("Renamed");
+
+    const deleted = await rest(`campaigns?id=eq.${id}`, { method: "DELETE", token });
+    expect(deleted.status).toBe(204);
+    expect(await titleOf(id)).toBeUndefined();
+  });
+
+  test("a brand can't move its campaign to another brand", async ({ browser }, testInfo) => {
+    const first = await browser.newPage();
+    const { id, token } = await brandWithCampaign(first, testInfo);
+    const second = await browser.newPage();
+    await signUp(second, testInfo, { accountType: "Brand" });
+    await completeBrandOnboarding(second);
+
+    const response = await rest(`campaigns?id=eq.${id}`, {
+      method: "PATCH",
+      token,
+      body: { brand_id: await userId(second.context()) },
+    });
+    // No update grant on brand_id: permission denied.
+    expect(response.status).toBe(403);
+    await first.close();
+    await second.close();
+  });
+
+  test("another brand can't update or delete it", async ({ browser }, testInfo) => {
+    const owner = await browser.newPage();
+    const { id } = await brandWithCampaign(owner, testInfo);
+    const other = await browser.newPage();
+    await signUp(other, testInfo, { accountType: "Brand" });
+    await completeBrandOnboarding(other);
+    const token = await accessToken(other.context());
+
+    // RLS hides the row from the update and delete, so nothing changes and nothing errors.
+    const updated = await rest(`campaigns?id=eq.${id}`, {
+      method: "PATCH",
+      token,
+      body: { title: "Hijacked" },
+    });
+    expect(updated.status).toBe(204);
+    const deleted = await rest(`campaigns?id=eq.${id}`, { method: "DELETE", token });
+    expect(deleted.status).toBe(204);
+    expect(await titleOf(id)).toBe("Spring Hyrox Open");
+    await owner.close();
+    await other.close();
+  });
+
+  test("guests can't update or delete it", async ({ page }, testInfo) => {
+    const { id } = await brandWithCampaign(page, testInfo);
+    const updated = await rest(`campaigns?id=eq.${id}`, {
+      method: "PATCH",
+      body: { title: "Hijacked" },
+    });
+    expect(updated.status).toBe(401);
+    const deleted = await rest(`campaigns?id=eq.${id}`, { method: "DELETE" });
+    expect(deleted.status).toBe(401);
+    expect(await titleOf(id)).toBe("Spring Hyrox Open");
+  });
 });
