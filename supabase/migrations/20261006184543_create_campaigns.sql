@@ -1,6 +1,7 @@
 -- Campaigns that brands publish: sponsorships, event sign-ups and ambassadorships.
 -- Everything in campaigns is public, guests included; contact details never live here.
--- Brands only create campaigns for now; editing, closing and deleting come later.
+-- Brands only create campaigns here; 20261007203215_campaigns_update_delete adds editing and
+-- deleting. Closing comes later.
 
 create type public.campaign_type as enum ('sponsorship', 'event', 'ambassador');
 

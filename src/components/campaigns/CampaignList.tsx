@@ -1,3 +1,6 @@
+import Link from "next/link";
+import DeleteCampaign from "@/components/campaigns/DeleteCampaign";
+import { textLink } from "@/components/ui/styles";
 import { type CampaignType, campaignTypeLabels } from "@/lib/campaignTypes";
 import { type Sport, sportLabels } from "@/lib/sports";
 
@@ -37,6 +40,23 @@ export default function CampaignList({ campaigns }: { campaigns: CampaignListIte
               Apply by {formatDeadline(campaign.deadline)}
             </p>
           )}
+          <div className="mt-3 flex items-baseline gap-5">
+            <Link
+              href={`/dashboard/campaigns/${campaign.id}/edit`}
+              aria-label={`Edit ${campaign.title}`}
+              className={`${textLink} text-sm`}
+            >
+              Edit
+            </Link>
+            <DeleteCampaign
+              campaignId={campaign.id}
+              label={
+                <>
+                  Delete<span className="sr-only"> {campaign.title}</span>
+                </>
+              }
+            />
+          </div>
         </li>
       ))}
     </ul>

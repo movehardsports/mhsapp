@@ -25,7 +25,8 @@ Update this section in every PR that changes it.
 - Done (onboarding): `/onboarding/athlete` and `/onboarding/brand` save through Server Actions and the functions above, and show the saved profile when the user comes back. Guests are sent to sign-in and the other account type to its own onboarding (`requireAccount` in `src/lib/auth/session.ts`). Athletes must be 18 or older (birth year at most this year minus 18). Signing in continues to onboarding until it's done.
 - Next: to be decided (e.g. public athlete catalogue, campaigns).
 - Done (campaigns): `campaigns` table (public read; brands insert their own rows, `brand_id` references `brands`), `campaign_type` enum mirrored by `src/lib/campaignTypes.ts`. Onboarded brands create campaigns on `/dashboard/campaigns/new` (`requireOnboardedBrand` in `src/lib/auth/session.ts`) and see them on `/dashboard`. Shared form parsing lives in `src/lib/validation.ts`.
-- Not set up yet: editing, closing and deleting campaigns, the public campaign list and page, application and collaboration tables and pages.
+- Done (campaigns): brands edit their own campaigns on `/dashboard/campaigns/[id]/edit` and delete them for good (Edit and Delete on each campaign in the dashboard list; Delete doesn't ask to confirm) (`src/app/dashboard/campaigns/actions.ts`; RLS lets a brand update and delete only its own rows, and `brand_id` can't be changed). A deadline that has passed may stay when editing; a new one must be from today on.
+- Not set up yet: closing campaigns (a status), the public campaign list and page, application and collaboration tables and pages. Deleting is a hard delete for now; revisit it once applications reference campaigns.
 
 ## Product
 
