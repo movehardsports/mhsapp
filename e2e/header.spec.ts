@@ -11,15 +11,27 @@ test("logo links to the home page", async ({ page }) => {
 
 test("shows main navigation links", async ({ page }) => {
   const header = page.getByRole("banner");
+  await expect(header.getByRole("link", { name: "Campaigns" })).toHaveAttribute(
+    "href",
+    "/campaigns"
+  );
   await expect(header.getByRole("button", { name: "Explore" })).toBeVisible();
   await expect(header.getByRole("link", { name: "Events" })).toHaveAttribute("href", "/events");
-  await expect(header.getByRole("link", { name: "For Athletes" })).toHaveAttribute("href", "/athletes");
+  await expect(header.getByRole("link", { name: "For Athletes" })).toHaveAttribute(
+    "href",
+    "/athletes"
+  );
   await expect(header.getByRole("link", { name: "For Brands" })).toHaveAttribute("href", "/brands");
 });
 
-test("shows main navigation in order: Explore, Events, For Athletes, For Brands", async ({ page }) => {
-  const items = page.getByRole("banner").getByRole("navigation").locator(":scope > div > button, :scope > a");
-  await expect(items).toHaveText(["Explore", "Events", "For Athletes", "For Brands"]);
+test("shows main navigation in order: Campaigns, Explore, Events, For Athletes, For Brands", async ({
+  page,
+}) => {
+  const items = page
+    .getByRole("banner")
+    .getByRole("navigation")
+    .locator(":scope > div > button, :scope > a");
+  await expect(items).toHaveText(["Campaigns", "Explore", "Events", "For Athletes", "For Brands"]);
 });
 
 test("shows sign in and sign up links", async ({ page }) => {
@@ -37,7 +49,9 @@ test("sign in, sign up and Explore links share one corner radius", async ({ page
     page.locator("#explore-menu").getByRole("link", { name: "Athletes", exact: true }),
     page.locator("#explore-menu").getByRole("link", { name: "Brands", exact: true }),
   ];
-  const radii = await Promise.all(buttons.map((b) => b.evaluate((el) => getComputedStyle(el).borderRadius)));
+  const radii = await Promise.all(
+    buttons.map((b) => b.evaluate((el) => getComputedStyle(el).borderRadius))
+  );
   expect(radii[0]).not.toBe("0px");
   expect(new Set(radii).size, `radii: ${radii.join(", ")}`).toBe(1);
 });
@@ -67,9 +81,14 @@ test.describe("Explore menu", () => {
     await expect(exploreMenu(page)).toBeVisible();
 
     const menu = exploreMenu(page);
-    await expect(menu.getByRole("link", { name: "Athletes", exact: true })).toHaveAttribute("href", "/explore/athletes");
-    await expect(menu.getByRole("link", { name: "Brands", exact: true })).toHaveAttribute("href", "/explore/brands");
-
+    await expect(menu.getByRole("link", { name: "Athletes", exact: true })).toHaveAttribute(
+      "href",
+      "/explore/athletes"
+    );
+    await expect(menu.getByRole("link", { name: "Brands", exact: true })).toHaveAttribute(
+      "href",
+      "/explore/brands"
+    );
   });
 
   test("top edge lines up with the header's bottom border", async ({ page }) => {
@@ -90,8 +109,12 @@ test.describe("Explore menu", () => {
 
   test("puts Athletes on the left and Brands on the right", async ({ page }) => {
     await exploreButton(page).click();
-    const athletes = await exploreMenu(page).getByRole("link", { name: "Athletes", exact: true }).boundingBox();
-    const brands = await exploreMenu(page).getByRole("link", { name: "Brands", exact: true }).boundingBox();
+    const athletes = await exploreMenu(page)
+      .getByRole("link", { name: "Athletes", exact: true })
+      .boundingBox();
+    const brands = await exploreMenu(page)
+      .getByRole("link", { name: "Brands", exact: true })
+      .boundingBox();
     expect(athletes!.x).toBeLessThan(brands!.x);
     expect(Math.abs(athletes!.y - brands!.y)).toBeLessThan(1);
   });
@@ -101,7 +124,9 @@ test.describe("Explore menu", () => {
     await expect(page.getByRole("group", { name: "Explore" })).toBeVisible();
   });
 
-  test("closes when the screen shrinks to mobile and stays closed after growing back", async ({ page }) => {
+  test("closes when the screen shrinks to mobile and stays closed after growing back", async ({
+    page,
+  }) => {
     const size = page.viewportSize()!;
     await exploreButton(page).click();
     await expect(exploreMenu(page)).toBeVisible();
@@ -150,7 +175,9 @@ test.describe("Explore menu", () => {
 
     // Safari only tabs to links with Option+Tab by default.
     await page.keyboard.press(browserName === "webkit" ? "Alt+Tab" : "Tab");
-    await expect(exploreMenu(page).getByRole("link", { name: "Athletes", exact: true })).toBeFocused();
+    await expect(
+      exploreMenu(page).getByRole("link", { name: "Athletes", exact: true })
+    ).toBeFocused();
 
     await page.keyboard.press("Escape");
     await expect(exploreMenu(page)).toBeHidden();

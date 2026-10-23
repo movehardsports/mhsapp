@@ -28,20 +28,35 @@ test("opens as a full-screen overlay with all links", async ({ page }) => {
   expect(box).toEqual({ x: 0, y: 0, width: viewport.width, height: viewport.height });
 
   await expect(exploreToggle(page)).toBeVisible();
-  for (const name of ["Events", "For Athletes", "For Brands", "Sign in", "Sign up"]) {
+  for (const name of ["Campaigns", "Events", "For Athletes", "For Brands", "Sign in", "Sign up"]) {
     await expect(menu(page).getByRole("link", { name, exact: true })).toBeVisible();
   }
 });
 
-test("lists menu sections in order: Explore, Events, For Athletes, For Brands", async ({ page }) => {
+test("lists menu sections in order: Campaigns, Explore, Events, For Athletes, For Brands", async ({
+  page,
+}) => {
   await openMenu(page);
-  const items = menu(page).getByRole("navigation").locator(":scope > details > summary, :scope > a");
-  await expect(items).toHaveText(["Explore", "Events", "For Athletes", "For Brands"]);
+  const items = menu(page)
+    .getByRole("navigation")
+    .locator(":scope > details > summary, :scope > a");
+  await expect(items).toHaveText(["Campaigns", "Explore", "Events", "For Athletes", "For Brands"]);
+});
+
+test("Campaigns links to the campaign list", async ({ page }) => {
+  await openMenu(page);
+  await expect(menu(page).getByRole("link", { name: "Campaigns", exact: true })).toHaveAttribute(
+    "href",
+    "/campaigns"
+  );
 });
 
 test("Events links to the events page", async ({ page }) => {
   await openMenu(page);
-  await expect(menu(page).getByRole("link", { name: "Events", exact: true })).toHaveAttribute("href", "/events");
+  await expect(menu(page).getByRole("link", { name: "Events", exact: true })).toHaveAttribute(
+    "href",
+    "/events"
+  );
 });
 
 test("Explore is collapsed by default and expands to Athletes and Brands", async ({ page }) => {
