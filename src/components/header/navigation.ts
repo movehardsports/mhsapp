@@ -5,6 +5,9 @@ export const exploreLinks: NavLink[] = [
   { href: "/explore/brands", label: "Brands" },
 ];
 
+// Its own top-level item, first in the navigation, before Explore.
+export const campaignsLink: NavLink = { href: "/campaigns", label: "Campaigns" };
+
 export const navLinks: NavLink[] = [
   { href: "/events", label: "Events" },
   { href: "/athletes", label: "For Athletes" },

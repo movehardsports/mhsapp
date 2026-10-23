@@ -1,7 +1,13 @@
 import Link from "next/link";
 import ExploreMenu from "@/components/header/ExploreMenu";
 import MobileMenu from "@/components/header/MobileMenu";
-import { dashboardLink, navLinks, signInLink, signUpLink } from "@/components/header/navigation";
+import {
+  campaignsLink,
+  dashboardLink,
+  navLinks,
+  signInLink,
+  signUpLink,
+} from "@/components/header/navigation";
 import { primaryButton } from "@/components/ui/styles";
 import { isSignedIn } from "@/lib/auth/session";
 
@@ -15,6 +21,12 @@ export default async function Header() {
           MHS
         </Link>
         <nav className="hidden items-center gap-6 text-sm tracking-wide uppercase md:flex">
+          <Link
+            href={campaignsLink.href}
+            className="text-foreground/70 transition-colors hover:text-foreground"
+          >
+            {campaignsLink.label}
+          </Link>
           <ExploreMenu />
           {navLinks.map((link) => (
             <Link
