@@ -27,6 +27,7 @@ export default defineConfig({
         "session.spec.ts",
         "dashboard.spec.ts",
         "campaigns-rls.spec.ts",
+        "api-rules.spec.ts",
       ],
       use: { ...devices["Desktop Chrome"] },
     },

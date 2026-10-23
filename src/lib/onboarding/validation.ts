@@ -2,8 +2,9 @@ export const MIN_AGE = 18;
 const MAX_AGE = 100;
 
 // We only store the birth year, so "18 or older" means turning 18 this year at the latest.
+// The year is the UTC one, like the database's check (supabase/migrations).
 export function birthYearRange(today = new Date()) {
-  const year = today.getFullYear();
+  const year = today.getUTCFullYear();
   return { min: year - MAX_AGE, max: year - MIN_AGE };
 }
 

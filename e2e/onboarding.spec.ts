@@ -149,7 +149,7 @@ test.describe("athlete onboarding", () => {
   });
 
   test("turns away anyone under 18, on the server too", async ({ page }) => {
-    const tooYoung = String(new Date().getFullYear() - 17);
+    const tooYoung = String(new Date().getUTCFullYear() - 17);
     await fillAthlete(page, { birthYear: tooYoung });
     await skipBrowserValidation(page);
     await submit(page).click();
