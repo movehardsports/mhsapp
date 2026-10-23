@@ -47,6 +47,7 @@ test("athletes must be 18 or older, however they save their profile", async ({
     body: { birth_year: thisYear - 10 },
   });
   expect(updated.status).toBe(400);
+  expect((await updated.json()).code).toBe("23514");
   const [row] = await (await rest(`athletes?id=eq.${id}&select=birth_year`)).json();
   expect(row.birth_year).toBe(thisYear - 18);
 });

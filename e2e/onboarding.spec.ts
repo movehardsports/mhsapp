@@ -165,7 +165,7 @@ test.describe("athlete onboarding", () => {
   });
 
   test("accepts athletes turning 18 this year", async ({ page }) => {
-    const turning18 = String(new Date().getFullYear() - 18);
+    const turning18 = String(new Date().getUTCFullYear() - 18);
     await fillAthlete(page, { birthYear: turning18 });
     await submit(page).click();
     await expect(page).toHaveURL("/");
