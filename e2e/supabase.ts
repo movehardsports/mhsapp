@@ -50,3 +50,12 @@ export function rest(
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 }
+
+// An Auth API request as a guest, e.g. signing up without the app's form and its checks.
+export function auth(path: string, body: unknown) {
+  return fetch(`${SUPABASE_URL}/auth/v1/${path}`, {
+    method: "POST",
+    headers: { apikey: PUBLISHABLE_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
