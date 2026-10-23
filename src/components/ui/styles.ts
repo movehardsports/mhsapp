@@ -7,6 +7,11 @@ export const primaryButton =
 export const checkableTile =
   "flex cursor-pointer items-center rounded-button border border-foreground/20 uppercase tracking-wide transition-colors hover:bg-foreground/5 has-checked:border-foreground has-checked:bg-foreground has-checked:text-background has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-foreground";
 
+// Text inputs and textareas. Focus darkens the border and adds the same outline as checkable
+// tiles (browsers treat any focus on a text field as focus-visible, clicks included).
+export const inputField =
+  "w-full rounded-button border border-foreground/20 bg-transparent px-3 py-2 transition-colors focus:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground";
+
 export const textLink = "font-medium text-foreground underline-offset-4 hover:underline";
 
 // A message about a failed form submission, shown above the submit button.

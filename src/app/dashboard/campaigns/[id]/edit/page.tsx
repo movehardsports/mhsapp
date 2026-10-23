@@ -41,6 +41,7 @@ export default async function EditCampaignPage({
         action={updateCampaign.bind(null, id)}
         initialValues={{ ...campaign, deadline: campaign.deadline ?? "" }}
         submitLabel="Save changes"
+        pendingLabel="Saving…"
         minDeadline={minDeadline}
       />
 

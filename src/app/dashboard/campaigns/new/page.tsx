@@ -21,6 +21,7 @@ export default async function NewCampaignPage() {
         action={createCampaign}
         initialValues={{ type: "", title: "", description: "", sports: [], deadline: "" }}
         submitLabel="Create campaign"
+        pendingLabel="Creating…"
         minDeadline={todayIsoDate()}
       />
     </main>

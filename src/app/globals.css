@@ -3,6 +3,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* The background colours are repeated in `viewport.themeColor` (src/app/layout.tsx). */
+  /* Native controls (date picker, number spinners, scrollbars) follow the light/dark theme. */
+  color-scheme: light dark;
 }
 
 @theme inline {
@@ -36,5 +39,16 @@ html:has(#mobile-menu[open]) {
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+}
+
+/* Users who ask for less motion get state changes without transitions or animations. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

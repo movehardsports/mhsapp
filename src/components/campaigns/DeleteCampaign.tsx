@@ -6,16 +6,22 @@ import SubmitButton from "@/components/forms/SubmitButton";
 export default function DeleteCampaign({
   campaignId,
   label,
+  pendingLabel = "Deleting…",
   className = "",
 }: {
   campaignId: string;
   // Text, or text plus a visually hidden part naming the campaign, as in the dashboard list.
+  // Name the campaign in `pendingLabel` too, so the button keeps it while deleting.
   label: React.ReactNode;
+  pendingLabel?: React.ReactNode;
   className?: string;
 }) {
   return (
     <form action={deleteCampaign.bind(null, campaignId)} className={className}>
-      <SubmitButton className="cursor-pointer text-sm font-medium text-red-600 underline-offset-4 hover:underline dark:text-red-400">
+      <SubmitButton
+        pendingLabel={pendingLabel}
+        className="cursor-pointer text-sm font-medium text-red-600 underline-offset-4 hover:underline dark:text-red-400"
+      >
         {label}
       </SubmitButton>
     </form>

@@ -81,7 +81,7 @@ export default function MobileMenu({ signedIn }: { signedIn: boolean }) {
         id="mobile-menu"
         aria-label="Menu"
         onClose={onDialogClose}
-        className="m-0 h-dvh max-h-none w-full max-w-none flex-col overflow-y-auto border-0 bg-background p-0 text-foreground open:flex"
+        className="m-0 h-dvh max-h-none w-full max-w-none flex-col overflow-y-auto overscroll-contain border-0 bg-background p-0 text-foreground open:flex"
       >
         <div className="flex h-16 shrink-0 items-center justify-between border-b border-foreground/10 px-4">
           <Link href="/" onClick={close} className="text-xl font-bold tracking-tight">
