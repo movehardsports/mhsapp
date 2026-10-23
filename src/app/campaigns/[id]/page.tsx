@@ -1,0 +1,63 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { cache } from "react";
+import PageTitle from "@/components/ui/PageTitle";
+import { formatDeadline } from "@/lib/campaigns";
+import { campaignTypeLabels } from "@/lib/campaignTypes";
+import { sportLabels } from "@/lib/sports";
+import { createClient } from "@/lib/supabase/server";
+import { isUuid, todayIsoDate } from "@/lib/validation";
+
+// Read once per request, for both the metadata and the page. Null when there's no such campaign.
+const getCampaign = cache(async (id: string) => {
+  if (!isUuid(id)) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("campaigns")
+    .select("type, title, description, sports, deadline, brand:brands(name)")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(`Reading the campaign failed: ${error.code}`);
+  return data;
+});
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/campaigns/[id]">): Promise<Metadata> {
+  const campaign = await getCampaign((await params).id);
+  return { title: campaign?.title ?? "Campaign not found" };
+}
+
+export default async function CampaignPage({ params }: PageProps<"/campaigns/[id]">) {
+  const campaign = await getCampaign((await params).id);
+  if (!campaign) notFound();
+
+  const closed = campaign.deadline !== null && campaign.deadline < todayIsoDate();
+
+  return (
+    <main className="mx-auto w-full max-w-3xl px-4 py-16">
+      <PageTitle>{campaign.title}</PageTitle>
+      <dl className="mb-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+        <dt className="text-foreground/70">Brand</dt>
+        <dd>{campaign.brand.name}</dd>
+        <dt className="text-foreground/70">Type</dt>
+        <dd>{campaignTypeLabels[campaign.type]}</dd>
+        <dt className="text-foreground/70">Sports</dt>
+        <dd>{campaign.sports.map((sport) => sportLabels[sport]).join(", ")}</dd>
+        {campaign.deadline && (
+          <>
+            <dt className="text-foreground/70">Apply by</dt>
+            <dd>{formatDeadline(campaign.deadline)}</dd>
+          </>
+        )}
+      </dl>
+      {closed && (
+        <p className="mb-8 rounded-button border border-foreground/15 px-4 py-3 text-sm">
+          Applications closed
+        </p>
+      )}
+      {/* The description is multi-line; keep its line breaks. */}
+      <p className="whitespace-pre-line">{campaign.description}</p>
+    </main>
+  );
+}

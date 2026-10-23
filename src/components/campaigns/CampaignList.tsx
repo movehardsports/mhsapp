@@ -1,6 +1,7 @@
 import Link from "next/link";
 import DeleteCampaign from "@/components/campaigns/DeleteCampaign";
 import { textLink } from "@/components/ui/styles";
+import { formatDeadline } from "@/lib/campaigns";
 import { type CampaignType, campaignTypeLabels } from "@/lib/campaignTypes";
 import { type Sport, sportLabels } from "@/lib/sports";
 
@@ -11,15 +12,6 @@ export type CampaignListItem = {
   sports: Sport[];
   deadline: string | null;
 };
-
-// Deadlines are plain dates (YYYY-MM-DD); format them in UTC so the day never shifts.
-const formatDeadline = (deadline: string) =>
-  new Date(`${deadline}T00:00:00Z`).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
 
 export default function CampaignList({ campaigns }: { campaigns: CampaignListItem[] }) {
   if (campaigns.length === 0) {

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import {
+  campaignsLink,
   dashboardLink,
   exploreLinks,
   navLinks,
@@ -110,6 +111,13 @@ export default function MobileMenu({ signedIn }: { signedIn: boolean }) {
         </div>
 
         <nav className="flex flex-1 flex-col px-4 py-4 text-2xl font-semibold tracking-wide uppercase">
+          <Link
+            href={campaignsLink.href}
+            onClick={close}
+            className="border-b border-foreground/10 py-5 transition-opacity hover:opacity-70"
+          >
+            {campaignsLink.label}
+          </Link>
           <details className="group border-b border-foreground/10 py-5">
             <summary className="flex cursor-pointer list-none items-center justify-between transition-opacity hover:opacity-70 [&::-webkit-details-marker]:hidden">
               Explore
