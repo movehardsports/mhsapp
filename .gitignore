@@ -47,3 +47,6 @@ next-env.d.ts
 
 # claude code (personal settings)
 .claude/settings.local.json
+
+# Python bytecode (e.g. from running skill scripts)
+__pycache__/
