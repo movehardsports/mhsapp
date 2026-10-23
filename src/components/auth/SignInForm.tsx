@@ -36,7 +36,7 @@ export default function SignInForm() {
         </p>
       )}
 
-      <SubmitButton>Sign in</SubmitButton>
+      <SubmitButton pendingLabel="Signing in…">Sign in</SubmitButton>
     </form>
   );
 }

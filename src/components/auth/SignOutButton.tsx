@@ -12,7 +12,7 @@ export default function SignOutButton({ className }: { className: string }) {
       disabled={pending}
       className={`${className} disabled:cursor-wait disabled:opacity-60`}
     >
-      Sign out
+      {pending ? "Signing out…" : "Sign out"}
     </button>
   );
 }

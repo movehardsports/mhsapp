@@ -19,6 +19,7 @@ export default defineConfig({
       testMatch: [
         "campaigns.spec.ts",
         "public-campaigns.spec.ts",
+        "ui.spec.ts",
         "header.spec.ts",
         "sign-up.spec.ts",
         "sign-in.spec.ts",
@@ -34,6 +35,7 @@ export default defineConfig({
       testMatch: [
         "campaigns.spec.ts",
         "public-campaigns.spec.ts",
+        "ui.spec.ts",
         "header.spec.ts",
         "sign-up.spec.ts",
         "sign-in.spec.ts",
@@ -48,6 +50,7 @@ export default defineConfig({
       testMatch: [
         "campaigns.spec.ts",
         "public-campaigns.spec.ts",
+        "ui.spec.ts",
         "mobile-menu.spec.ts",
         "sign-up.spec.ts",
         "sign-in.spec.ts",
@@ -60,6 +63,7 @@ export default defineConfig({
       testMatch: [
         "campaigns.spec.ts",
         "public-campaigns.spec.ts",
+        "ui.spec.ts",
         "mobile-menu.spec.ts",
         "sign-up.spec.ts",
         "sign-in.spec.ts",

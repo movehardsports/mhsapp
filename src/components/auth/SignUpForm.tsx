@@ -92,7 +92,7 @@ export default function SignUpForm() {
         </p>
       )}
 
-      <SubmitButton>Sign up</SubmitButton>
+      <SubmitButton pendingLabel="Signing up…">Sign up</SubmitButton>
     </form>
   );
 }

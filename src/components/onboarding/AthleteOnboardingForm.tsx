@@ -90,7 +90,7 @@ export default function AthleteOnboardingForm({ saved, birthYears }: Props) {
         </p>
       )}
 
-      <SubmitButton>Continue</SubmitButton>
+      <SubmitButton pendingLabel="Saving…">Continue</SubmitButton>
     </form>
   );
 }

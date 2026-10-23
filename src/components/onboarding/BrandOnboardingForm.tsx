@@ -43,7 +43,7 @@ export default function BrandOnboardingForm({ saved }: { saved: BrandOnboardingV
         </p>
       )}
 
-      <SubmitButton>Continue</SubmitButton>
+      <SubmitButton pendingLabel="Saving…">Continue</SubmitButton>
     </form>
   );
 }

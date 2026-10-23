@@ -22,7 +22,7 @@ export default function CampaignList({ campaigns }: { campaigns: CampaignListIte
     <ul className="flex flex-col gap-3">
       {campaigns.map((campaign) => (
         <li key={campaign.id} className="rounded-button border border-foreground/15 px-4 py-3">
-          <p className="font-medium">{campaign.title}</p>
+          <p className="font-medium break-words">{campaign.title}</p>
           <p className="mt-1 text-xs tracking-wide text-foreground/70 uppercase">
             {campaignTypeLabels[campaign.type]} ·{" "}
             {campaign.sports.map((sport) => sportLabels[sport]).join(", ")}
@@ -45,6 +45,11 @@ export default function CampaignList({ campaigns }: { campaigns: CampaignListIte
               label={
                 <>
                   Delete<span className="sr-only"> {campaign.title}</span>
+                </>
+              }
+              pendingLabel={
+                <>
+                  Deleting<span className="sr-only"> {campaign.title}</span>…
                 </>
               }
             />

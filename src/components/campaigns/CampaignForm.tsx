@@ -5,7 +5,7 @@ import type { CampaignFormState, CampaignValues } from "@/app/dashboard/campaign
 import Field from "@/components/forms/Field";
 import SubmitButton from "@/components/forms/SubmitButton";
 import TagPicker from "@/components/forms/TagPicker";
-import { checkableTile, formError } from "@/components/ui/styles";
+import { checkableTile, formError, inputField } from "@/components/ui/styles";
 import { campaignTypeLabels, campaignTypes } from "@/lib/campaignTypes";
 import { sportGroups } from "@/lib/sports";
 
@@ -15,13 +15,21 @@ type Props = {
   action: (state: CampaignFormState, formData: FormData) => Promise<CampaignFormState>;
   initialValues: CampaignValues;
   submitLabel: string;
+  // Shown on the submit button while saving, e.g. "Creating…".
+  pendingLabel: string;
   // The earliest deadline the date input allows (YYYY-MM-DD, UTC), from the server: today, or
   // a saved deadline that has already passed so it can stay. The action still rejects any other
   // past date.
   minDeadline: string;
 };
 
-export default function CampaignForm({ action, initialValues, submitLabel, minDeadline }: Props) {
+export default function CampaignForm({
+  action,
+  initialValues,
+  submitLabel,
+  pendingLabel,
+  minDeadline,
+}: Props) {
   const [state, formAction] = useActionState(action, initialState);
   const values = state.status === "error" ? state.values : initialValues;
 
@@ -57,7 +65,7 @@ export default function CampaignForm({ action, initialValues, submitLabel, minDe
           maxLength={5000}
           rows={6}
           defaultValue={values.description}
-          className="w-full rounded-button border border-foreground/20 bg-transparent px-3 py-2 transition-colors outline-none focus:border-foreground"
+          className={inputField}
         />
       </div>
       <TagPicker
@@ -82,7 +90,7 @@ export default function CampaignForm({ action, initialValues, submitLabel, minDe
         </p>
       )}
 
-      <SubmitButton>{submitLabel}</SubmitButton>
+      <SubmitButton pendingLabel={pendingLabel}>{submitLabel}</SubmitButton>
     </form>
   );
 }

@@ -22,7 +22,7 @@ export default async function ConfirmEmailPage({ searchParams }: PageProps<"/aut
       <form action={confirmEmail} className="flex flex-col gap-5">
         <input type="hidden" name="token_hash" value={tokenHash} />
         <p className="text-foreground/70">Confirm your email address to finish signing up.</p>
-        <SubmitButton>Confirm email</SubmitButton>
+        <SubmitButton pendingLabel="Confirming…">Confirm email</SubmitButton>
       </form>
     </>
   );
