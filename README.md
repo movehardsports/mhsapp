@@ -16,16 +16,17 @@ npm run dev          # http://localhost:3000
 
 `.env.local` needs the local Supabase URL and publishable key: `npx supabase status -o env`.
 
-| Script                 | What it does                                                 |
-| ---------------------- | ------------------------------------------------------------ |
-| `npm run lint`         | ESLint                                                       |
-| `npm run typecheck`    | Generates Next route types, then runs `tsc`                  |
-| `npm run format:check` | Prettier check of the whole tree (`npm run format` fixes it) |
-| `npm run test:e2e`     | Builds the app and runs Playwright on desktop and mobile     |
-| `npm run db:types`     | Regenerates the database types from local Supabase           |
+| Script                 | What it does                                                   |
+| ---------------------- | -------------------------------------------------------------- |
+| `npm run lint`         | ESLint                                                         |
+| `npm run typecheck`    | Generates Next route types, then runs `tsc`                    |
+| `npm run format:check` | Prettier check of the whole tree (`npm run format` fixes it)   |
+| `npm run test:unit`    | Vitest unit tests for `src/lib` (`*.test.ts` next to the code) |
+| `npm run test:e2e`     | Builds the app and runs Playwright on desktop and mobile       |
+| `npm run db:types`     | Regenerates the database types from local Supabase             |
 
-CI runs lint, the formatting check, typecheck and the e2e tests (against local Supabase) on
-pull requests and on pushes to `dev` and `main`.
+CI runs lint, the formatting check, typecheck, the unit tests and the e2e tests (against local
+Supabase) on pull requests and on pushes to `dev` and `main`.
 
 The pre-commit hook (Husky) formats staged files with Prettier and runs `npm run typecheck`. The
 Claude Code hooks in `.claude/hooks/` need [`jq`](https://jqlang.org) (`brew install jq`):
