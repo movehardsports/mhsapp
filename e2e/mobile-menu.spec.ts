@@ -1,14 +1,12 @@
 import { expect, type Page, test } from "@playwright/test";
+import { mobileMenu as menu, openMobileMenu } from "./mobile-menu";
 
-const menu = (page: Page) => page.getByRole("dialog", { name: "Menu" });
 const openButton = (page: Page) => page.getByRole("button", { name: "Open menu" });
 const closeButton = (page: Page) => page.getByRole("button", { name: "Close menu" });
 const exploreToggle = (page: Page) => menu(page).locator("summary", { hasText: "Explore" });
 
-async function openMenu(page: Page) {
-  await openButton(page).click();
-  await expect(menu(page)).toBeVisible();
-}
+// Waits for hydration: a click before it does nothing.
+const openMenu = openMobileMenu;
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
@@ -126,10 +124,10 @@ test("locks page scroll while open and restores it after closing", async ({ page
     page.evaluate(() => getComputedStyle(document.documentElement).overflow);
 
   await openMenu(page);
-  expect(await htmlOverflow()).toBe("hidden");
+  await expect.poll(htmlOverflow).toBe("hidden");
 
   await closeButton(page).click();
-  expect(await htmlOverflow()).not.toBe("hidden");
+  await expect.poll(htmlOverflow).not.toBe("hidden");
 });
 
 test("closes with Escape and returns focus to the hamburger", async ({ page }) => {

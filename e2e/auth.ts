@@ -1,6 +1,7 @@
 import { expect, type Page, type TestInfo } from "@playwright/test";
 import { gotoHydrated } from "./hydration";
 import { confirmationLinkPath, uniqueEmail } from "./mailpit";
+import { openMobileMenu } from "./mobile-menu";
 
 export const TEST_PASSWORD = "secret123";
 
@@ -36,14 +37,7 @@ export async function signUp(
 export async function accountArea(page: Page) {
   const openMenu = page.getByRole("button", { name: "Open menu" });
   if (!(await openMenu.isVisible())) return page.getByRole("banner");
-
-  // The menu opens from a React click handler: a click before hydration does nothing, so retry.
-  const menu = page.getByRole("dialog", { name: "Menu" });
-  await expect(async () => {
-    await openMenu.click();
-    await expect(menu).toBeVisible({ timeout: 1000 });
-  }).toPass();
-  return menu;
+  return openMobileMenu(page);
 }
 
 // Saves a brand's onboarding with the minimum it needs, for a user signed in as a brand.

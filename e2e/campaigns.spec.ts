@@ -1,23 +1,11 @@
 import { expect, type Page, test } from "@playwright/test";
 import { completeBrandOnboarding, signUp } from "./auth";
+import { createCampaign, isoDate } from "./campaigns";
 import { gotoHydrated } from "./hydration";
+import { alert, main, skipBrowserValidation, sportsGroup } from "./page";
 import { accessToken, rest, userId } from "./supabase";
 
-const main = (page: Page) => page.getByRole("main");
-const alert = (page: Page) => main(page).getByRole("alert");
 const submit = (page: Page) => main(page).getByRole("button", { name: "Create campaign" });
-const sportsGroup = (page: Page) => page.getByRole("group", { name: "Sports" });
-
-// Removes the browser's own checks, to test the Server Action's. The campaign form comes
-// first; the edit page has a delete form below it.
-const skipBrowserValidation = (page: Page) =>
-  main(page)
-    .locator("form")
-    .first()
-    .evaluate((form) => form.setAttribute("novalidate", ""));
-
-// YYYY-MM-DD in UTC, `days` from today; the app uses the UTC date too.
-const isoDate = (days = 0) => new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10);
 
 async function fillCampaign(
   page: Page,
@@ -170,28 +158,6 @@ test.describe("form", () => {
 });
 
 test.describe("edit and delete", () => {
-  // Creates a campaign straight through the Data API; the database doesn't check that the
-  // deadline is in the future, so this can also make one whose deadline has passed.
-  async function createCampaign(page: Page, deadline: string | null = null) {
-    const response = await rest("campaigns", {
-      method: "POST",
-      token: await accessToken(page.context()),
-      body: {
-        brand_id: await userId(page.context()),
-        type: "event",
-        title: "Spring Hyrox Open",
-        description: "Race day in Warsaw.",
-        sports: ["hyrox"],
-        deadline,
-      },
-    });
-    expect(response.status).toBe(201);
-    const [{ id }] = await (
-      await rest(`campaigns?brand_id=eq.${await userId(page.context())}&select=id`)
-    ).json();
-    return id as string;
-  }
-
   const save = (page: Page) => main(page).getByRole("button", { name: "Save changes" });
 
   test.beforeEach(async ({ page }, testInfo) => {
@@ -200,7 +166,7 @@ test.describe("edit and delete", () => {
   });
 
   test("opens from the dashboard with the saved values and saves changes", async ({ page }) => {
-    await createCampaign(page, "2099-12-31");
+    await createCampaign(page, { deadline: "2099-12-31" });
     await gotoHydrated(page, "/dashboard");
     await main(page).getByRole("link", { name: "Edit Spring Hyrox Open" }).click();
     await expect(page).toHaveURL(/\/dashboard\/campaigns\/[0-9a-f-]+\/edit$/);
@@ -247,7 +213,7 @@ test.describe("edit and delete", () => {
 
   test("keeps a deadline that has passed, but won't set a new one", async ({ page }) => {
     const passed = isoDate(-10);
-    const id = await createCampaign(page, passed);
+    const id = await createCampaign(page, { deadline: passed });
     await gotoHydrated(page, `/dashboard/campaigns/${id}/edit`);
     await expect(page.getByLabel("Deadline")).toHaveAttribute("min", passed);
 
@@ -295,15 +261,18 @@ test.describe("edit and delete", () => {
 
   test("another brand's campaign and unknown ids are not found", async ({ page, browser }) => {
     const other = await browser.newPage();
-    await signUp(other, test.info(), { accountType: "Brand" });
-    await completeBrandOnboarding(other);
-    const othersId = await createCampaign(other);
+    try {
+      await signUp(other, test.info(), { accountType: "Brand" });
+      await completeBrandOnboarding(other);
+      const othersId = await createCampaign(other);
 
-    for (const id of [othersId, crypto.randomUUID(), "not-a-uuid"]) {
-      const response = await page.goto(`/dashboard/campaigns/${id}/edit`);
-      expect(response?.status(), id).toBe(404);
+      for (const id of [othersId, crypto.randomUUID(), "not-a-uuid"]) {
+        const response = await page.goto(`/dashboard/campaigns/${id}/edit`);
+        expect(response?.status(), id).toBe(404);
+      }
+    } finally {
+      await other.close();
     }
-    await other.close();
   });
 
   test("saving a campaign deleted meanwhile says it's gone", async ({ page }) => {

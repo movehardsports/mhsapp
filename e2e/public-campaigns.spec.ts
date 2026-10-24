@@ -1,36 +1,12 @@
-import { expect, type Page, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { completeBrandOnboarding, signUp } from "./auth";
-import { accessToken, rest, userId } from "./supabase";
+import { createCampaign, isoDate } from "./campaigns";
+import { main } from "./page";
 
-const main = (page: Page) => page.getByRole("main");
-
-// YYYY-MM-DD in UTC, `days` from today; the app uses the UTC date too.
-const isoDate = (days = 0) => new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10);
-
-// Other tests create campaigns in the same database, so every title here is unique.
+// Other tests create campaigns in the same database, so every title here is unique. The list
+// shows the newest 50 campaigns; these are created just before each test reads it.
 const uniqueTitle = (label: string) => `${label} ${crypto.randomUUID().slice(0, 8)}`;
-
-// Creates a campaign for the signed-in brand straight through the Data API; the database
-// doesn't check that the deadline is in the future, so this can make a closed one too.
-async function createCampaign(
-  page: Page,
-  { title, deadline = null }: { title: string; deadline?: string | null }
-) {
-  const response = await rest("campaigns", {
-    method: "POST",
-    token: await accessToken(page.context()),
-    body: {
-      brand_id: await userId(page.context()),
-      type: "event",
-      title,
-      description: "Race day in Warsaw.\nBring your crew.",
-      sports: ["hyrox"],
-      deadline,
-    },
-  });
-  expect(response.status).toBe(201);
-  return title;
-}
+const description = "Race day in Warsaw.\nBring your crew.";
 
 test.describe("as a guest", () => {
   let open: string;
@@ -41,13 +17,10 @@ test.describe("as a guest", () => {
   test.beforeEach(async ({ page }, testInfo) => {
     await signUp(page, testInfo, { accountType: "Brand" });
     await completeBrandOnboarding(page);
-    open = await createCampaign(page, { title: uniqueTitle("Open"), deadline: isoDate(30) });
-    closed = await createCampaign(page, { title: uniqueTitle("Closed"), deadline: isoDate(-1) });
-    const ids = await (
-      await rest(`campaigns?brand_id=eq.${await userId(page.context())}&select=id,title`)
-    ).json();
-    openId = ids.find((c: { title: string }) => c.title === open).id;
-    closedId = ids.find((c: { title: string }) => c.title === closed).id;
+    open = uniqueTitle("Open");
+    closed = uniqueTitle("Closed");
+    openId = await createCampaign(page, { title: open, description, deadline: isoDate(30) });
+    closedId = await createCampaign(page, { title: closed, description, deadline: isoDate(-1) });
     await page.context().clearCookies();
   });
 

@@ -1,6 +1,19 @@
-import { expect, type Page, test, type TestInfo } from "@playwright/test";
+import { type Browser, expect, type Page, test, type TestInfo } from "@playwright/test";
 import { completeBrandOnboarding, signUp } from "./auth";
+import { createCampaign } from "./campaigns";
 import { accessToken, rest, userId } from "./supabase";
+
+// Extra pages, each in its own context (another user), closed after every test even when it
+// fails.
+const extraPages: Page[] = [];
+test.afterEach(async () => {
+  await Promise.all(extraPages.splice(0).map((page) => page.close()));
+});
+async function newPage(browser: Browser) {
+  const page = await browser.newPage();
+  extraPages.push(page);
+  return page;
+}
 
 const campaign = (brandId: string) => ({
   brand_id: brandId,
@@ -29,12 +42,12 @@ test("a brand creates its own campaign, and guests can read it", async ({ page }
 });
 
 test("a brand can't create a campaign for another brand", async ({ browser }, testInfo) => {
-  const first = await browser.newPage();
+  const first = await newPage(browser);
   await signUp(first, testInfo, { accountType: "Brand" });
   await completeBrandOnboarding(first);
   const victim = await userId(first.context());
 
-  const second = await browser.newPage();
+  const second = await newPage(browser);
   await signUp(second, testInfo, { accountType: "Brand" });
   await completeBrandOnboarding(second);
 
@@ -88,16 +101,8 @@ test.describe("updating and deleting", () => {
   async function brandWithCampaign(page: Page, testInfo: TestInfo) {
     await signUp(page, testInfo, { accountType: "Brand" });
     await completeBrandOnboarding(page);
-    const brandId = await userId(page.context());
-    const token = await accessToken(page.context());
-    const created = await rest("campaigns", {
-      method: "POST",
-      token,
-      body: campaign(brandId),
-    });
-    expect(created.status).toBe(201);
-    const [{ id }] = await (await rest(`campaigns?brand_id=eq.${brandId}&select=id`)).json();
-    return { id: id as string, brandId, token };
+    const id = await createCampaign(page);
+    return { id, token: await accessToken(page.context()) };
   }
 
   const titleOf = async (id: string) =>
@@ -120,9 +125,9 @@ test.describe("updating and deleting", () => {
   });
 
   test("a brand can't move its campaign to another brand", async ({ browser }, testInfo) => {
-    const first = await browser.newPage();
+    const first = await newPage(browser);
     const { id, token } = await brandWithCampaign(first, testInfo);
-    const second = await browser.newPage();
+    const second = await newPage(browser);
     await signUp(second, testInfo, { accountType: "Brand" });
     await completeBrandOnboarding(second);
 
@@ -133,14 +138,12 @@ test.describe("updating and deleting", () => {
     });
     // No update grant on brand_id: permission denied.
     expect(response.status).toBe(403);
-    await first.close();
-    await second.close();
   });
 
   test("another brand can't update or delete it", async ({ browser }, testInfo) => {
-    const owner = await browser.newPage();
+    const owner = await newPage(browser);
     const { id } = await brandWithCampaign(owner, testInfo);
-    const other = await browser.newPage();
+    const other = await newPage(browser);
     await signUp(other, testInfo, { accountType: "Brand" });
     await completeBrandOnboarding(other);
     const token = await accessToken(other.context());
@@ -155,8 +158,6 @@ test.describe("updating and deleting", () => {
     const deleted = await rest(`campaigns?id=eq.${id}`, { method: "DELETE", token });
     expect(deleted.status).toBe(204);
     expect(await titleOf(id)).toBe("Spring Hyrox Open");
-    await owner.close();
-    await other.close();
   });
 
   test("guests can't update or delete it", async ({ page }, testInfo) => {

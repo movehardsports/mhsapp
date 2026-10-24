@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "prepare": "husky",
     "typecheck": "next typegen && tsc --noEmit",
     "db:types": "supabase gen types --local --lang typescript --schema public > src/lib/supabase/database.types.ts && prettier --write src/lib/supabase/database.types.ts",

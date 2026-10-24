@@ -5,9 +5,13 @@ on:
     branches: [main, dev]
   pull_request:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # A new push to a pull request makes its older run pointless; runs on dev and main finish.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   check:
@@ -27,11 +31,33 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # The pre-commit hook only formats staged files, so check the whole tree here.
+      - name: Check formatting
+        run: npm run format:check
+
       - name: Type check
         run: npm run typecheck
 
+      # Browsers are cached per Playwright version; their system libraries are installed on
+      # every run, since they live outside the cache.
+      - name: Get the Playwright version
+        id: playwright
+        run: echo "version=$(npm ls @playwright/test --json | jq -r '.dependencies["@playwright/test"].version')" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
       - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium webkit
+
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium webkit
 
       # The e2e tests sign up for real, so they need Auth, the database and Mailpit. Skip the
       # services they don't use to start faster.
