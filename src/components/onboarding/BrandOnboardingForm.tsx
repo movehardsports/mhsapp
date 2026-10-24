@@ -1,21 +1,18 @@
 "use client";
 
 import { useActionState } from "react";
-import {
-  type BrandOnboardingState,
-  type BrandOnboardingValues,
-  saveBrandOnboarding,
-} from "@/app/onboarding/brand/actions";
+import { type BrandOnboardingState, saveBrandOnboarding } from "@/app/onboarding/brand/actions";
 import Field from "@/components/forms/Field";
 import SubmitButton from "@/components/forms/SubmitButton";
 import TagPicker from "@/components/forms/TagPicker";
 import { formError } from "@/components/ui/styles";
+import { type BrandProfileValues, NAME_MAX } from "@/lib/profiles/validation";
 import { sportGroups } from "@/lib/sports";
 
 const initialState: BrandOnboardingState = { status: "idle" };
 
 // `saved` is the saved profile when the brand comes back, otherwise empty values.
-export default function BrandOnboardingForm({ saved }: { saved: BrandOnboardingValues }) {
+export default function BrandOnboardingForm({ saved }: { saved: BrandProfileValues }) {
   const [state, formAction] = useActionState(saveBrandOnboarding, initialState);
   const values = state.status === "error" ? state.values : saved;
 
@@ -25,7 +22,7 @@ export default function BrandOnboardingForm({ saved }: { saved: BrandOnboardingV
         id="brandName"
         label="Brand name"
         required
-        maxLength={100}
+        maxLength={NAME_MAX}
         autoComplete="organization"
         defaultValue={values.brandName}
       />

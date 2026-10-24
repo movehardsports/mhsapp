@@ -3,20 +3,25 @@
 import { useActionState } from "react";
 import {
   type AthleteOnboardingState,
-  type AthleteOnboardingValues,
   saveAthleteOnboarding,
 } from "@/app/onboarding/athlete/actions";
 import Field from "@/components/forms/Field";
 import SubmitButton from "@/components/forms/SubmitButton";
 import TagPicker from "@/components/forms/TagPicker";
 import { formError } from "@/components/ui/styles";
+import {
+  type AthleteProfileValues,
+  CITY_MAX,
+  NAME_MAX,
+  NICKNAME_MAX,
+} from "@/lib/profiles/validation";
 import { sportGroups } from "@/lib/sports";
 
 const initialState: AthleteOnboardingState = { status: "idle" };
 
 type Props = {
   // The saved profile when the athlete comes back, otherwise empty strings.
-  saved: AthleteOnboardingValues;
+  saved: AthleteProfileValues;
   birthYears: { min: number; max: number };
 };
 
@@ -31,7 +36,7 @@ export default function AthleteOnboardingForm({ saved, birthYears }: Props) {
           id="firstName"
           label="First name"
           required
-          maxLength={100}
+          maxLength={NAME_MAX}
           autoComplete="given-name"
           defaultValue={values.firstName}
         />
@@ -40,7 +45,7 @@ export default function AthleteOnboardingForm({ saved, birthYears }: Props) {
           label="Last name"
           hint="Only you can see it."
           required
-          maxLength={100}
+          maxLength={NAME_MAX}
           autoComplete="family-name"
           defaultValue={values.lastName}
         />
@@ -49,7 +54,7 @@ export default function AthleteOnboardingForm({ saved, birthYears }: Props) {
         id="nickname"
         label="Nickname"
         required
-        maxLength={50}
+        maxLength={NICKNAME_MAX}
         autoComplete="nickname"
         defaultValue={values.nickname}
       />
@@ -71,7 +76,7 @@ export default function AthleteOnboardingForm({ saved, birthYears }: Props) {
           id="city"
           label="City"
           required
-          maxLength={100}
+          maxLength={CITY_MAX}
           autoComplete="address-level2"
           defaultValue={values.city}
         />

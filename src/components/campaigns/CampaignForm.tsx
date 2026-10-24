@@ -1,12 +1,17 @@
 "use client";
 
 import { useActionState } from "react";
-import type { CampaignFormState, CampaignValues } from "@/app/dashboard/campaigns/actions";
+import type { CampaignFormState } from "@/app/dashboard/campaigns/actions";
 import Field from "@/components/forms/Field";
 import SubmitButton from "@/components/forms/SubmitButton";
 import TagPicker from "@/components/forms/TagPicker";
 import { checkableTile, formError, inputField } from "@/components/ui/styles";
-import { campaignTypeLabels, campaignTypes } from "@/lib/campaignTypes";
+import { campaignTypeLabels, campaignTypes } from "@/lib/campaigns/campaignTypes";
+import {
+  CAMPAIGN_DESCRIPTION_MAX,
+  CAMPAIGN_TITLE_MAX,
+  type CampaignValues,
+} from "@/lib/campaigns/validation";
 import { sportGroups } from "@/lib/sports";
 
 const initialState: CampaignFormState = { status: "idle" };
@@ -53,7 +58,13 @@ export default function CampaignForm({
           ))}
         </div>
       </fieldset>
-      <Field id="title" label="Title" required maxLength={100} defaultValue={values.title} />
+      <Field
+        id="title"
+        label="Title"
+        required
+        maxLength={CAMPAIGN_TITLE_MAX}
+        defaultValue={values.title}
+      />
       <div className="flex flex-col gap-2">
         <label htmlFor="description" className="text-sm font-medium">
           Description
@@ -62,7 +73,7 @@ export default function CampaignForm({
           id="description"
           name="description"
           required
-          maxLength={5000}
+          maxLength={CAMPAIGN_DESCRIPTION_MAX}
           rows={6}
           defaultValue={values.description}
           className={inputField}

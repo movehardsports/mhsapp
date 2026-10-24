@@ -2,6 +2,10 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Database } from "@/lib/supabase/database.types";
 
+// The per-request client that the data functions in src/lib/<domain>/ take as their first
+// argument.
+export type Supabase = Awaited<ReturnType<typeof createClient>>;
+
 // A Supabase client for Server Components, Server Actions and Route Handlers. Create one per
 // request: it reads and writes the session cookies of the current request.
 export async function createClient() {

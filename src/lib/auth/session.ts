@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
 import { type AccountType, isAccountType, onboardingPath } from "@/lib/accountTypes";
-import { createClient } from "@/lib/supabase/server";
-
-type Supabase = Awaited<ReturnType<typeof createClient>>;
+import { createClient, type Supabase } from "@/lib/supabase/server";
 
 // Whether a user is signed in. getClaims verifies the token instead of trusting the cookie
 // as-is, unlike getSession.
