@@ -1,12 +1,9 @@
 import { expect, type Page, test } from "@playwright/test";
-import { mobileMenu as menu, openMobileMenu } from "./mobile-menu";
+import { mobileMenu as menu, openMobileMenu as openMenu } from "./mobile-menu";
 
 const openButton = (page: Page) => page.getByRole("button", { name: "Open menu" });
 const closeButton = (page: Page) => page.getByRole("button", { name: "Close menu" });
 const exploreToggle = (page: Page) => menu(page).locator("summary", { hasText: "Explore" });
-
-// Waits for hydration: a click before it does nothing.
-const openMenu = openMobileMenu;
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
