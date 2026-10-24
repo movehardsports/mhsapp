@@ -1,8 +1,8 @@
 import Link from "next/link";
 import DeleteCampaign from "@/components/campaigns/DeleteCampaign";
 import { textLink } from "@/components/ui/styles";
-import { formatDeadline } from "@/lib/campaigns";
-import { type CampaignType, campaignTypeLabels } from "@/lib/campaignTypes";
+import { type CampaignType, campaignTypeLabels } from "@/lib/campaigns/campaignTypes";
+import { formatDeadline } from "@/lib/campaigns/format";
 import { type Sport, sportLabels } from "@/lib/sports";
 
 type CampaignListItem = {

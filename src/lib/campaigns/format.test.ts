@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDeadline } from "@/lib/campaigns";
+import { formatDeadline } from "@/lib/campaigns/format";
 
 describe("formatDeadline", () => {
   it("formats a plain date without shifting the day", () => {

@@ -6,6 +6,7 @@ import PageMain from "@/components/ui/PageMain";
 import { primaryButton, secondaryButton } from "@/components/ui/styles";
 import { signOut } from "@/lib/auth/actions";
 import { requireOnboardedAccount } from "@/lib/auth/session";
+import { listBrandCampaigns } from "@/lib/campaigns/queries";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -16,17 +17,8 @@ export default async function DashboardPage() {
   const supabase = await createClient();
   const account = await requireOnboardedAccount(supabase);
 
-  let campaigns = null;
-  if (account.accountType === "brand") {
-    const { data, error } = await supabase
-      .from("campaigns")
-      .select("id, type, title, sports, deadline")
-      .eq("brand_id", account.userId)
-      .order("created_at", { ascending: false });
-    // An empty list would wrongly tell the brand it has no campaigns.
-    if (error) throw new Error(`Reading the campaigns failed: ${error.code}`);
-    campaigns = data;
-  }
+  const campaigns =
+    account.accountType === "brand" ? await listBrandCampaigns(supabase, account.userId) : null;
 
   return (
     <PageMain width="narrow">

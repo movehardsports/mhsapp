@@ -3,24 +3,15 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import PageMain from "@/components/ui/PageMain";
 import PageTitle from "@/components/ui/PageTitle";
-import { formatDeadline } from "@/lib/campaigns";
-import { campaignTypeLabels } from "@/lib/campaignTypes";
+import { campaignTypeLabels } from "@/lib/campaigns/campaignTypes";
+import { formatDeadline } from "@/lib/campaigns/format";
+import { getPublicCampaign } from "@/lib/campaigns/queries";
 import { sportLabels } from "@/lib/sports";
 import { createClient } from "@/lib/supabase/server";
-import { isUuid, todayIsoDate } from "@/lib/validation";
+import { todayIsoDate } from "@/lib/validation";
 
 // Read once per request, for both the metadata and the page. Null when there's no such campaign.
-const getCampaign = cache(async (id: string) => {
-  if (!isUuid(id)) return null;
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("campaigns")
-    .select("type, title, description, sports, deadline, brand:brands(name)")
-    .eq("id", id)
-    .maybeSingle();
-  if (error) throw new Error(`Reading the campaign failed: ${error.code}`);
-  return data;
-});
+const getCampaign = cache(async (id: string) => getPublicCampaign(await createClient(), id));
 
 export async function generateMetadata({
   params,

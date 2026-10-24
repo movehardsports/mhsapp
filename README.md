@@ -52,9 +52,10 @@ src/
 │   └── ui/              PageMain, PageTitle, shared styles
 ├── lib/
 │   ├── auth/            session helpers, sign-out
+│   ├── campaigns/       campaign queries, mutations, form parsing, types, formatting
+│   ├── profiles/        athlete and brand profile queries, mutations, form parsing
 │   ├── supabase/        server and proxy clients, database types
-│   ├── onboarding/      birth year rules
-│   └── *.ts             account types, sports, campaign types, validation, shared types
+│   └── *.ts             account types, sports, shared validation and types
 └── proxy.ts             refreshes the Supabase session
 supabase/                migrations, config, email templates
 e2e/                     Playwright tests and shared helpers

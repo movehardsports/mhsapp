@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { formatDeadline } from "@/lib/campaigns";
-import { type CampaignType, campaignTypeLabels } from "@/lib/campaignTypes";
+import { type CampaignType, campaignTypeLabels } from "@/lib/campaigns/campaignTypes";
+import { formatDeadline } from "@/lib/campaigns/format";
 import { type Sport, sportLabels } from "@/lib/sports";
 
 type PublicCampaignListItem = {
