@@ -1,3 +1,5 @@
+import PageMain from "@/components/ui/PageMain";
+
 export default function AuthLayout({ children }: LayoutProps<"/">) {
-  return <main className="mx-auto w-full max-w-sm px-4 py-16 lg:max-w-lg">{children}</main>;
+  return <PageMain width="narrow">{children}</PageMain>;
 }

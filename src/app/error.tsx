@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import PageMain from "@/components/ui/PageMain";
 import PageTitle from "@/components/ui/PageTitle";
 import { primaryButton, textLink } from "@/components/ui/styles";
 
@@ -20,7 +21,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <main className="mx-auto w-full max-w-sm px-4 py-16 lg:max-w-lg">
+    <PageMain width="narrow">
       {/* Client components can't export metadata; React hoists this into <head>. */}
       <title>Something went wrong | MHS</title>
       <PageTitle>Something went wrong</PageTitle>
@@ -39,6 +40,6 @@ export default function Error({
           Go to the home page
         </Link>
       </div>
-    </main>
+    </PageMain>
   );
 }

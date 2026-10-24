@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PublicCampaignList from "@/components/campaigns/PublicCampaignList";
+import PageMain from "@/components/ui/PageMain";
 import PageTitle from "@/components/ui/PageTitle";
 import { createClient } from "@/lib/supabase/server";
 import { todayIsoDate } from "@/lib/validation";
@@ -25,9 +26,9 @@ export default async function CampaignsPage() {
   if (error) throw new Error(`Reading the campaigns failed: ${error.code}`);
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-16">
+    <PageMain width="wide">
       <PageTitle>Campaigns</PageTitle>
       <PublicCampaignList campaigns={campaigns} />
-    </main>
+    </PageMain>
   );
 }

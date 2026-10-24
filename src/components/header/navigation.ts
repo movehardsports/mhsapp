@@ -1,4 +1,4 @@
-export type NavLink = { href: string; label: string };
+type NavLink = { href: string; label: string };
 
 export const exploreLinks: NavLink[] = [
   { href: "/explore/athletes", label: "Athletes" },

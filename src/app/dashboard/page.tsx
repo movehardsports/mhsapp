@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import SignOutButton from "@/components/auth/SignOutButton";
 import CampaignList from "@/components/campaigns/CampaignList";
-import { primaryButton } from "@/components/ui/styles";
-import { onboardingPath } from "@/lib/accountTypes";
+import SubmitButton from "@/components/forms/SubmitButton";
+import PageMain from "@/components/ui/PageMain";
+import { primaryButton, secondaryButton } from "@/components/ui/styles";
 import { signOut } from "@/lib/auth/actions";
-import { getAccount, hasOnboarded } from "@/lib/auth/session";
+import { requireOnboardedAccount } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -15,10 +14,7 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const account = await getAccount(supabase);
-  if (!account) redirect("/sign-in");
-  // Users who skipped the onboarding land there until they finish it.
-  if (!(await hasOnboarded(supabase, account))) redirect(onboardingPath(account.accountType));
+  const account = await requireOnboardedAccount(supabase);
 
   let campaigns = null;
   if (account.accountType === "brand") {
@@ -33,7 +29,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-sm px-4 py-16 lg:max-w-lg">
+    <PageMain width="narrow">
       {/* No visible title for now; the heading is for screen readers. */}
       <h1 className="sr-only">Dashboard</h1>
       {campaigns && (
@@ -53,8 +49,13 @@ export default async function DashboardPage() {
         </section>
       )}
       <form action={signOut}>
-        <SignOutButton className="w-full rounded-button border border-foreground/15 px-4 py-3 text-sm tracking-wide uppercase transition-colors hover:bg-foreground/5" />
+        <SubmitButton
+          pendingLabel="Signing out…"
+          className={`${secondaryButton} w-full px-4 py-3 text-sm tracking-wide uppercase`}
+        >
+          Sign out
+        </SubmitButton>
       </form>
-    </main>
+    </PageMain>
   );
 }

@@ -3,6 +3,10 @@
 export const primaryButton =
   "rounded-button bg-foreground font-medium text-background transition-opacity hover:opacity-90";
 
+// An outlined button or button-like link, next to or instead of a primary one.
+export const secondaryButton =
+  "rounded-button border border-foreground/15 transition-colors hover:bg-foreground/5";
+
 // A label wrapping a visually hidden radio or checkbox; it fills in while its input is checked.
 export const checkableTile =
   "flex cursor-pointer items-center rounded-button border border-foreground/20 uppercase tracking-wide transition-colors hover:bg-foreground/5 has-checked:border-foreground has-checked:bg-foreground has-checked:text-background has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-foreground";

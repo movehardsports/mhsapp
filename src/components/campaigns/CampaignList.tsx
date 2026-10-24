@@ -5,7 +5,7 @@ import { formatDeadline } from "@/lib/campaigns";
 import { type CampaignType, campaignTypeLabels } from "@/lib/campaignTypes";
 import { type Sport, sportLabels } from "@/lib/sports";
 
-export type CampaignListItem = {
+type CampaignListItem = {
   id: string;
   type: CampaignType;
   title: string;
