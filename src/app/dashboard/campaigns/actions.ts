@@ -1,6 +1,7 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { RedirectType, redirect } from "next/navigation";
 import { requireOnboardedBrand } from "@/lib/auth/session";
 import { isCampaignType } from "@/lib/campaignTypes";
 import { createClient } from "@/lib/supabase/server";
@@ -86,7 +87,16 @@ export async function createCampaign(
     };
   }
 
+  revalidateCampaignPages();
   redirect("/dashboard");
+}
+
+// Pages that show campaigns: the brand's dashboard and the public list and campaign pages.
+// Without this, going Back after a change can show a cached copy from before it.
+function revalidateCampaignPages() {
+  revalidatePath("/dashboard");
+  revalidatePath("/campaigns");
+  revalidatePath("/campaigns/[id]", "page");
 }
 
 // Bound to the campaign's id by the edit page.
@@ -136,6 +146,7 @@ export async function updateCampaign(
   }
   if (data.length === 0) return gone();
 
+  revalidateCampaignPages();
   redirect("/dashboard");
 }
 
@@ -152,5 +163,8 @@ export async function deleteCampaign(campaignId: string) {
     .eq("brand_id", userId);
   if (error) throw new Error(`Deleting the campaign failed: ${error.code}`);
 
-  redirect("/dashboard");
+  revalidateCampaignPages();
+  // Replace, not push: Back shouldn't return to the page of a campaign that's gone, or to a
+  // second copy of the dashboard.
+  redirect("/dashboard", RedirectType.replace);
 }

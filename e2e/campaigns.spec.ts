@@ -268,12 +268,17 @@ test.describe("edit and delete", () => {
 
   test("deletes a campaign from its edit page", async ({ page }) => {
     const id = await createCampaign(page);
+    await page.goto("/dashboard");
     await gotoHydrated(page, `/dashboard/campaigns/${id}/edit`);
     await main(page).getByRole("button", { name: "Delete campaign" }).click();
 
     await expect(page).toHaveURL("/dashboard");
     await expect(main(page).getByText("No campaigns yet")).toBeVisible();
     expect(await campaignsOf(page)).toEqual([]);
+
+    // The dashboard replaces the edit page in the history, so Back skips the deleted campaign.
+    await page.goBack();
+    await expect(page).not.toHaveURL(`/dashboard/campaigns/${id}/edit`);
   });
 
   test("deletes a campaign straight from the dashboard", async ({ page }) => {
