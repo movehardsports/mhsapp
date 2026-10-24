@@ -3,6 +3,11 @@ import { defineConfig, devices } from "@playwright/test";
 // Tests run against a production build on its own port, so they don't clash with `npm run dev`.
 const PORT = 3100;
 
+// Specs that call the Supabase APIs directly; the browser doesn't matter for them.
+const apiSpecs = ["campaigns-rls.spec.ts", "api-rules.spec.ts"];
+// The desktop header and flows checked on desktop only.
+const desktopOnlySpecs = ["header.spec.ts", "session.spec.ts", "dashboard.spec.ts"];
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -13,67 +18,28 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",
   },
+  // Every spec runs on every project unless a project ignores it, so a new spec can't be
+  // skipped by accident. Desktop-only and mobile-only UI specs are ignored where they don't
+  // apply; API-level specs (no UI) run once, on desktop Chrome.
   projects: [
     {
       name: "desktop-chrome",
-      testMatch: [
-        "campaigns.spec.ts",
-        "not-found.spec.ts",
-        "public-campaigns.spec.ts",
-        "ui.spec.ts",
-        "header.spec.ts",
-        "sign-up.spec.ts",
-        "sign-in.spec.ts",
-        "onboarding.spec.ts",
-        "session.spec.ts",
-        "dashboard.spec.ts",
-        "campaigns-rls.spec.ts",
-        "api-rules.spec.ts",
-      ],
+      testIgnore: ["mobile-menu.spec.ts"],
       use: { ...devices["Desktop Chrome"] },
     },
     {
       name: "desktop-safari",
-      testMatch: [
-        "campaigns.spec.ts",
-        "not-found.spec.ts",
-        "public-campaigns.spec.ts",
-        "ui.spec.ts",
-        "header.spec.ts",
-        "sign-up.spec.ts",
-        "sign-in.spec.ts",
-        "onboarding.spec.ts",
-        "session.spec.ts",
-        "dashboard.spec.ts",
-      ],
+      testIgnore: ["mobile-menu.spec.ts", ...apiSpecs],
       use: { ...devices["Desktop Safari"] },
     },
     {
       name: "mobile-chrome",
-      testMatch: [
-        "campaigns.spec.ts",
-        "not-found.spec.ts",
-        "public-campaigns.spec.ts",
-        "ui.spec.ts",
-        "mobile-menu.spec.ts",
-        "sign-up.spec.ts",
-        "sign-in.spec.ts",
-        "onboarding.spec.ts",
-      ],
+      testIgnore: [...desktopOnlySpecs, ...apiSpecs],
       use: { ...devices["Pixel 7"] },
     },
     {
       name: "mobile-safari",
-      testMatch: [
-        "campaigns.spec.ts",
-        "not-found.spec.ts",
-        "public-campaigns.spec.ts",
-        "ui.spec.ts",
-        "mobile-menu.spec.ts",
-        "sign-up.spec.ts",
-        "sign-in.spec.ts",
-        "onboarding.spec.ts",
-      ],
+      testIgnore: [...desktopOnlySpecs, ...apiSpecs],
       use: { ...devices["iPhone 14"] },
     },
   ],

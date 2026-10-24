@@ -1,6 +1,6 @@
 import { type BrowserContext, expect, test } from "@playwright/test";
 import { signUp } from "./auth";
-import { readSession } from "./supabase";
+import { readSession, SESSION_COOKIE } from "./supabase";
 
 // @supabase/ssr splits the session cookie into chunks of this many characters.
 const MAX_CHUNK_SIZE = 3180;
@@ -15,7 +15,7 @@ async function expireSession(context: BrowserContext) {
   const [first] = chunks;
   const baseName = first.name.replace(/\.\d+$/, "");
   const parts = value.match(new RegExp(`.{1,${MAX_CHUNK_SIZE}}`, "g")) ?? [];
-  await context.clearCookies({ name: /^sb-.+-auth-token(\.\d+)?$/ });
+  await context.clearCookies({ name: SESSION_COOKIE });
   await context.addCookies(
     parts.map((part, i) => ({
       name: parts.length === 1 ? baseName : `${baseName}.${i}`,

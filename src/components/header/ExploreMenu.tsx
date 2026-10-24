@@ -37,7 +37,7 @@ export default function ExploreMenu() {
       <button
         type="button"
         popoverTarget="explore-menu"
-        className="flex items-center gap-1 uppercase tracking-wide text-foreground/70 transition-colors hover:text-foreground group-has-[:popover-open]:text-foreground"
+        className="flex items-center gap-1 tracking-wide text-foreground/70 uppercase transition-colors group-has-[:popover-open]:text-foreground hover:text-foreground"
       >
         Explore
         <svg
@@ -64,7 +64,7 @@ export default function ExploreMenu() {
         popover="auto"
         role="group"
         aria-label="Explore"
-        className="absolute inset-auto left-1/2 top-16 m-0 w-[32rem] -translate-x-1/2 rounded-2xl border border-foreground/10 bg-background p-6 text-foreground uppercase tracking-wide shadow-xl backdrop:top-[calc(4rem+1px)] backdrop:bg-black/20 backdrop:backdrop-blur-xs"
+        className="absolute inset-auto top-16 left-1/2 m-0 w-[32rem] -translate-x-1/2 rounded-2xl border border-foreground/10 bg-background p-6 tracking-wide text-foreground uppercase shadow-xl backdrop:top-[calc(4rem+1px)] backdrop:bg-black/20 backdrop:backdrop-blur-xs"
       >
         <ul className="grid grid-cols-2 gap-2">
           {exploreLinks.map((link) => (

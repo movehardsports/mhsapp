@@ -61,14 +61,14 @@ Don't rely on training data for Next.js or Supabase: both change fast.
 ## Commands
 
 - `npm run dev`: dev server on http://localhost:3000
-- `npm run lint`, `npm run typecheck`: run both before calling work done
-- `npm run test:e2e` (`test:e2e:ui` for the UI mode): Playwright tests; they build and start the app themselves
+- `npm run lint`, `npm run typecheck`, `npm run format:check`: run them before calling work done (`npm run format` fixes formatting)
+- `npm run test:e2e` (`test:e2e:ui` for the UI mode): Playwright tests; they build and start the app themselves. Every spec runs on all four browser projects unless `playwright.config.ts` ignores it for a project (desktop-only, mobile-only and API-only specs). Shared helpers live in `e2e/*.ts` (`page.ts`, `campaigns.ts`, `mobile-menu.ts`, `auth.ts`, `supabase.ts`).
 - `npx supabase start` / `npx supabase stop`: local Supabase in Docker (Studio http://127.0.0.1:54323, mail catcher http://127.0.0.1:54324)
 - `npx supabase status -o env`: local URLs and keys
-- `npm run db:types`: regenerate `src/lib/supabase/database.types.ts` from local Supabase after a migration. Typecheck fails if the `sport` enum and `src/lib/sports.ts` drift apart.
+- `npm run db:types`: regenerate `src/lib/supabase/database.types.ts` from local Supabase after a migration. Typecheck fails if the `sport` or `campaign_type` enum drifts apart from `src/lib/sports.ts` or `src/lib/campaignTypes.ts`.
 - `npx supabase db reset`: rebuild the local database from the migrations. It also wipes local users. Afterwards run `npx supabase stop && npx supabase start`: the reset restarts Auth without the custom email template, so confirmation links lose their token hash.
 
-The pre-commit hook (Husky) runs Prettier on staged files and `npm run typecheck`. A Claude Code hook runs ESLint on every file you edit. CI (`.github/workflows/ci.yml`) runs lint, typecheck and e2e on pull requests and on pushes to `dev` and `main`; it starts local Supabase for the e2e tests. The e2e tests need local Supabase running (`npx supabase start`) and read sign-up emails from Mailpit.
+The pre-commit hook (Husky) runs Prettier on staged files and `npm run typecheck`. A Claude Code hook runs ESLint on every JS/TS file you edit. CI (`.github/workflows/ci.yml`) runs lint, a formatting check of the whole tree, typecheck and e2e on pull requests and on pushes to `dev` and `main`; it starts local Supabase for the e2e tests. The e2e tests need local Supabase running (`npx supabase start`) and read sign-up emails from Mailpit.
 
 ## Workflow
 

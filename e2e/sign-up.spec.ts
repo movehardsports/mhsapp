@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import { TEST_PASSWORD } from "./auth";
 import { gotoHydrated } from "./hydration";
 import { confirmationLinkPath, uniqueEmail } from "./mailpit";
 
@@ -11,8 +12,8 @@ async function fillValidForm(page: Page, accountType: "Athlete" | "Brand", email
   await page.getByText(accountType, { exact: true }).click();
   await expect(page.getByLabel(accountType)).toBeChecked();
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password", { exact: true }).fill("secret123");
-  await page.getByLabel("Confirm password").fill("secret123");
+  await page.getByLabel("Password", { exact: true }).fill(TEST_PASSWORD);
+  await page.getByLabel("Confirm password").fill(TEST_PASSWORD);
 }
 
 test.beforeEach(async ({ page }) => {

@@ -5,13 +5,17 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  // Override default ignores of eslint-config-next.
+  // ESLint doesn't read .gitignore: list build output and test artefacts here.
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Playwright and Supabase CLI output:
+    "playwright-report/**",
+    "test-results/**",
+    "supabase/.temp/**",
   ]),
 ]);
 

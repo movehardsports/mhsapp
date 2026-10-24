@@ -15,7 +15,8 @@ const PUBLISHABLE_KEY = requireEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
 
 // The Supabase session cookie: `sb-<ref>-auth-token`, split into `.0`, `.1`, … chunks when
 // long, holding "base64-" plus the base64url-encoded session JSON.
-export const isSessionCookie = (name: string) => /^sb-.+-auth-token(\.\d+)?$/.test(name);
+export const SESSION_COOKIE = /^sb-.+-auth-token(\.\d+)?$/;
+const isSessionCookie = (name: string) => SESSION_COOKIE.test(name);
 
 export async function readSession(context: BrowserContext) {
   const chunks = (await context.cookies())
@@ -36,15 +37,22 @@ export async function userId(context: BrowserContext) {
 }
 
 // A Data API (PostgREST) request as a guest, or as the user whose access token is given.
+// `prefer` sets PostgREST's Prefer header, e.g. "return=representation" to get written rows back.
 export function rest(
   path: string,
-  { method = "GET", token, body }: { method?: string; token?: string; body?: unknown } = {}
+  {
+    method = "GET",
+    token,
+    body,
+    prefer,
+  }: { method?: string; token?: string; body?: unknown; prefer?: string } = {}
 ) {
   return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     method,
     headers: {
       apikey: PUBLISHABLE_KEY,
       ...(token && { Authorization: `Bearer ${token}` }),
+      ...(prefer && { Prefer: prefer }),
       ...(body !== undefined && { "Content-Type": "application/json" }),
     },
     body: body === undefined ? undefined : JSON.stringify(body),

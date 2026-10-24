@@ -1,10 +1,9 @@
 import { expect, type Page, test } from "@playwright/test";
 import { signUp } from "./auth";
 import { gotoHydrated } from "./hydration";
+import { alert, skipBrowserValidation, sportsGroup } from "./page";
 
 const submit = (page: Page) => page.getByRole("main").getByRole("button", { name: "Continue" });
-const alert = (page: Page) => page.getByRole("main").getByRole("alert");
-const sportsGroup = (page: Page) => page.getByRole("group", { name: "Sports" });
 const allSports = [
   "Triathlon / Ultra",
   "Hyrox",
@@ -43,13 +42,6 @@ const sportsAreValid = (page: Page) =>
     .getByRole("checkbox")
     .first()
     .evaluate((el) => (el as HTMLInputElement).validity.valid);
-
-// Skip the browser's checks, like a form posted before hydration or by hand.
-const skipBrowserValidation = (page: Page) =>
-  page
-    .getByRole("main")
-    .locator("form")
-    .evaluate((form) => form.setAttribute("novalidate", ""));
 
 async function fillAthlete(page: Page, { birthYear = "1998" } = {}) {
   await page.getByLabel("First name").fill("Jane");
