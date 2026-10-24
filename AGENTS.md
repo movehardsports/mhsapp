@@ -16,7 +16,7 @@ A marketplace connecting athletes and brands.
 
 Update this section in every PR that changes it.
 
-- Done: Next.js scaffold, header with Explore menu, Supabase client (`src/lib/supabase/`, typed with `database.types.ts`) and CLI config, Playwright e2e tests and GitHub Actions CI, Claude Code setup (skills, hooks, `code-reviewer` agent).
+- Done: Next.js scaffold, header with Explore menu, Supabase client (`src/lib/supabase/`, typed with `database.types.ts`) and CLI config, Playwright e2e tests, Vitest unit tests and GitHub Actions CI, Claude Code setup (skills, hooks, `code-reviewer` agent).
 - Done (database): `profiles` table with the account type, created by a trigger on `auth.users` from `account_type` in the sign-up metadata; users can only read their own profile. Every new auth user must carry `account_type` (see the migration). `SECURITY DEFINER` functions live in the unexposed `private` schema.
 - Done (auth): sign-up through a Server Action with email confirmation; the emailed link opens `/auth/confirm` (token hash, template in `supabase/templates/`), whose button confirms the email (a GET alone does nothing, so mail scanners can't use up the link) and continues to the onboarding for the profile's account type. Passwords need at least 8 characters, in the form and in Auth (`minimum_password_length` in `supabase/config.toml`). The hosted project still needs that email template, email confirmation and the 8-character minimum set in the dashboard.
 - Done (auth): sign-in and sign-out through Server Actions; signed-in users see only a Dashboard button in the header (`getClaims()` in `src/lib/auth/session.ts`). `/dashboard` has the Sign out button (and a brand's campaigns); guests are sent to sign-in, and users who haven't finished the onboarding to their onboarding (`requireOnboardedAccount`).
@@ -61,14 +61,15 @@ Don't rely on training data for Next.js or Supabase: both change fast.
 ## Commands
 
 - `npm run dev`: dev server on http://localhost:3000
-- `npm run lint`, `npm run typecheck`, `npm run format:check`: run them before calling work done (`npm run format` fixes formatting)
+- `npm run lint`, `npm run typecheck`, `npm run format:check`, `npm run test:unit`: run them before calling work done (`npm run format` fixes formatting)
+- `npm run test:unit`: Vitest unit tests for plain logic in `src/lib` (no browser, no database), next to the code as `*.test.ts`. Pure helpers (parsing, validation, formatting) get unit tests; pages and flows get Playwright tests.
 - `npm run test:e2e` (`test:e2e:ui` for the UI mode): Playwright tests; they build and start the app themselves. Every spec runs on all four browser projects unless `playwright.config.ts` ignores it for a project (desktop-only, mobile-only and API-only specs). Shared helpers live in `e2e/*.ts` (`auth.ts`, `campaigns.ts`, `hydration.ts`, `mailpit.ts`, `mobile-menu.ts`, `page.ts`, `supabase.ts`).
 - `npx supabase start` / `npx supabase stop`: local Supabase in Docker (Studio http://127.0.0.1:54323, mail catcher http://127.0.0.1:54324)
 - `npx supabase status -o env`: local URLs and keys
 - `npm run db:types`: regenerate `src/lib/supabase/database.types.ts` from local Supabase after a migration. Typecheck fails if the `sport`, `campaign_type` or `account_type` enum drifts apart from its list in `src/lib/` (`sports.ts`, `campaignTypes.ts`, `accountTypes.ts`).
 - `npx supabase db reset`: rebuild the local database from the migrations. It also wipes local users. Afterwards run `npx supabase stop && npx supabase start`: the reset restarts Auth without the custom email template, so confirmation links lose their token hash.
 
-The pre-commit hook (Husky) runs Prettier on staged files and `npm run typecheck`. A Claude Code hook runs ESLint on every JS/TS file you edit. CI (`.github/workflows/ci.yml`) runs lint, a formatting check of the whole tree, typecheck and e2e on pull requests and on pushes to `dev` and `main`; it starts local Supabase for the e2e tests. The e2e tests need local Supabase running (`npx supabase start`) and read sign-up emails from Mailpit.
+The pre-commit hook (Husky) runs Prettier on staged files and `npm run typecheck`. A Claude Code hook runs ESLint on every JS/TS file you edit. CI (`.github/workflows/ci.yml`) runs lint, a formatting check of the whole tree, typecheck, unit tests and e2e on pull requests and on pushes to `dev` and `main`; it starts local Supabase for the e2e tests. The e2e tests need local Supabase running (`npx supabase start`) and read sign-up emails from Mailpit.
 
 ## Workflow
 
@@ -84,7 +85,7 @@ The pre-commit hook (Husky) runs Prettier on staged files and `npm run typecheck
 - Mutations go through Server Actions (`<form action={...}>` with `useActionState`) and validate on the server. Never submit forms client-side only: a form submitted before hydration must not leak data into the URL.
 - Components live in `src/components/<area>/`, shared helpers in `src/lib/`. Import with the `@/` alias.
 - Pages wrap their content in `PageMain` (`src/components/ui/PageMain.tsx`, widths `narrow`, `form`, `wide`); repeated class sets go in `src/components/ui/styles.ts`.
-- New user-facing pages and forms get a Playwright e2e test.
+- New user-facing pages and forms get a Playwright e2e test; new pure helpers in `src/lib` get a unit test.
 
 ## Supabase
 

@@ -39,6 +39,9 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
+      - name: Unit tests
+        run: npm run test:unit
+
       # Browsers are cached per Playwright version; their system libraries are installed on
       # every run, since they live outside the cache.
       - name: Get the Playwright version
