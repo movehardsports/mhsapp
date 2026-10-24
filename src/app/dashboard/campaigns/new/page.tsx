@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { createCampaign } from "@/app/dashboard/campaigns/actions";
 import CampaignForm from "@/components/campaigns/CampaignForm";
+import PageMain from "@/components/ui/PageMain";
 import PageTitle from "@/components/ui/PageTitle";
 import { requireOnboardedBrand } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -15,7 +16,7 @@ export default async function NewCampaignPage() {
   await requireOnboardedBrand(supabase);
 
   return (
-    <main className="mx-auto w-full max-w-sm px-4 py-16 lg:max-w-xl">
+    <PageMain width="form">
       <PageTitle>New campaign</PageTitle>
       <CampaignForm
         action={createCampaign}
@@ -24,6 +25,6 @@ export default async function NewCampaignPage() {
         pendingLabel="Creating…"
         minDeadline={todayIsoDate()}
       />
-    </main>
+    </PageMain>
   );
 }

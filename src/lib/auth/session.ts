@@ -56,12 +56,19 @@ export async function hasOnboarded(
   return data !== null;
 }
 
-// For brand-only pages and their actions after onboarding: guests go to sign in, athletes to
-// their dashboard, and brands without a profile to the onboarding.
-export async function requireOnboardedBrand(supabase: Supabase) {
+// For pages every account uses after onboarding, like the dashboard: guests go to sign in, and
+// users who skipped the onboarding land there until they finish it.
+export async function requireOnboardedAccount(supabase: Supabase) {
   const account = await getAccount(supabase);
   if (!account) redirect("/sign-in");
+  if (!(await hasOnboarded(supabase, account))) redirect(onboardingPath(account.accountType));
+  return account;
+}
+
+// For brand-only pages and their actions: requireOnboardedAccount, and athletes go to their
+// dashboard.
+export async function requireOnboardedBrand(supabase: Supabase) {
+  const account = await requireOnboardedAccount(supabase);
   if (account.accountType !== "brand") redirect("/dashboard");
-  if (!(await hasOnboarded(supabase, account))) redirect(onboardingPath("brand"));
   return { userId: account.userId };
 }

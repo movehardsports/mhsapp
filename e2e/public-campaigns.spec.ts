@@ -72,5 +72,6 @@ test("unknown and malformed campaign ids are a 404", async ({ page }) => {
   for (const id of [crypto.randomUUID(), "not-a-uuid"]) {
     const response = await page.goto(`/campaigns/${id}`);
     expect(response?.status()).toBe(404);
+    await expect(page).toHaveTitle("Page not found | MHS");
   }
 });

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import PageMain from "@/components/ui/PageMain";
 import PageTitle from "@/components/ui/PageTitle";
 import { formatDeadline } from "@/lib/campaigns";
 import { campaignTypeLabels } from "@/lib/campaignTypes";
@@ -25,7 +26,9 @@ export async function generateMetadata({
   params,
 }: PageProps<"/campaigns/[id]">): Promise<Metadata> {
   const campaign = await getCampaign((await params).id);
-  return { title: campaign?.title ?? "Campaign not found" };
+  // The not-found page sets its own title.
+  if (!campaign) notFound();
+  return { title: campaign.title };
 }
 
 export default async function CampaignPage({ params }: PageProps<"/campaigns/[id]">) {
@@ -35,7 +38,7 @@ export default async function CampaignPage({ params }: PageProps<"/campaigns/[id
   const closed = campaign.deadline !== null && campaign.deadline < todayIsoDate();
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-16">
+    <PageMain width="wide">
       <PageTitle>{campaign.title}</PageTitle>
       <dl className="mb-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
         <dt className="text-foreground/70">Brand</dt>
@@ -58,6 +61,6 @@ export default async function CampaignPage({ params }: PageProps<"/campaigns/[id
       )}
       {/* The description is multi-line; keep its line breaks. */}
       <p className="whitespace-pre-line">{campaign.description}</p>
-    </main>
+    </PageMain>
   );
 }

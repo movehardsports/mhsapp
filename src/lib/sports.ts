@@ -1,4 +1,5 @@
 import type { Database } from "@/lib/supabase/database.types";
+import type { Assert, SameUnion } from "@/lib/types";
 
 // Grouped by theme; the pickers show the groups, and the sports within them, in this order.
 export const sportGroups = [
@@ -62,7 +63,4 @@ export function isSport(value: unknown): value is Sport {
 // The database stores sports as the `sport` enum (supabase/migrations). This fails typecheck
 // when the two lists drift apart; regenerate the types with `npm run db:types` after a migration.
 type DatabaseSport = Database["public"]["Enums"]["sport"];
-type Assert<T extends true> = T;
-export type SportsMatchDatabase = Assert<
-  [Sport] extends [DatabaseSport] ? ([DatabaseSport] extends [Sport] ? true : false) : false
->;
+export type SportsMatchDatabase = Assert<SameUnion<Sport, DatabaseSport>>;

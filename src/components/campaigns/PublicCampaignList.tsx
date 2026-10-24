@@ -3,7 +3,7 @@ import { formatDeadline } from "@/lib/campaigns";
 import { type CampaignType, campaignTypeLabels } from "@/lib/campaignTypes";
 import { type Sport, sportLabels } from "@/lib/sports";
 
-export type PublicCampaignListItem = {
+type PublicCampaignListItem = {
   id: string;
   type: CampaignType;
   title: string;

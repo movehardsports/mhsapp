@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { updateCampaign } from "@/app/dashboard/campaigns/actions";
 import CampaignForm from "@/components/campaigns/CampaignForm";
 import DeleteCampaign from "@/components/campaigns/DeleteCampaign";
+import PageMain from "@/components/ui/PageMain";
 import PageTitle from "@/components/ui/PageTitle";
 import { requireOnboardedBrand } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -35,7 +36,7 @@ export default async function EditCampaignPage({
   const minDeadline = campaign.deadline && campaign.deadline < today ? campaign.deadline : today;
 
   return (
-    <main className="mx-auto w-full max-w-sm px-4 py-16 lg:max-w-xl">
+    <PageMain width="form">
       <PageTitle>Edit campaign</PageTitle>
       <CampaignForm
         action={updateCampaign.bind(null, id)}
@@ -46,6 +47,6 @@ export default async function EditCampaignPage({
       />
 
       <DeleteCampaign campaignId={id} label="Delete campaign" className="mt-10 text-center" />
-    </main>
+    </PageMain>
   );
 }

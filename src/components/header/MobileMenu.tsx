@@ -11,7 +11,7 @@ import {
   signInLink,
   signUpLink,
 } from "@/components/header/navigation";
-import { primaryButton } from "@/components/ui/styles";
+import { primaryButton, secondaryButton } from "@/components/ui/styles";
 
 // Native modal <dialog> handles Escape, focus trapping and inerting the page.
 export default function MobileMenu({ signedIn }: { signedIn: boolean }) {
@@ -181,7 +181,7 @@ export default function MobileMenu({ signedIn }: { signedIn: boolean }) {
             <Link
               href={signInLink.href}
               onClick={close}
-              className="rounded-button border border-foreground/15 px-4 py-3 text-center transition-colors hover:bg-foreground/5"
+              className={`${secondaryButton} px-4 py-3 text-center`}
             >
               {signInLink.label}
             </Link>

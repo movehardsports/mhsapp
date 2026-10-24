@@ -1,7 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { isAccountType, onboardingPath } from "@/lib/accountTypes";
+import { onboardingPath } from "@/lib/accountTypes";
+import { getAccount } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 const confirmErrorPath = "/sign-up/confirm-error";
@@ -17,9 +18,14 @@ export async function confirmEmail(formData: FormData) {
   if (error) redirect(confirmErrorPath);
 
   // Continue to the onboarding for the account type stored in the profile. The redirect target
-  // never comes from the request, so the link can't be turned into an open redirect.
-  const { data: profile } = await supabase.from("profiles").select("account_type").single();
-  if (!isAccountType(profile?.account_type)) redirect("/");
-
-  redirect(onboardingPath(profile.account_type));
+  // never comes from the request, so the link can't be turned into an open redirect. The email
+  // is confirmed either way, so if the profile can't be read, just go home.
+  let target = "/";
+  try {
+    const account = await getAccount(supabase);
+    if (account) target = onboardingPath(account.accountType);
+  } catch (error) {
+    console.error("Reading the profile after confirming the email failed", error);
+  }
+  redirect(target);
 }
