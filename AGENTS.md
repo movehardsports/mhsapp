@@ -62,7 +62,7 @@ Don't rely on training data for Next.js or Supabase: both change fast.
 
 - `npm run dev`: dev server on http://localhost:3000
 - `npm run lint`, `npm run typecheck`, `npm run format:check`: run them before calling work done (`npm run format` fixes formatting)
-- `npm run test:e2e` (`test:e2e:ui` for the UI mode): Playwright tests; they build and start the app themselves. Every spec runs on all four browser projects unless `playwright.config.ts` ignores it for a project (desktop-only, mobile-only and API-only specs). Shared helpers live in `e2e/*.ts` (`page.ts`, `campaigns.ts`, `mobile-menu.ts`, `auth.ts`, `supabase.ts`).
+- `npm run test:e2e` (`test:e2e:ui` for the UI mode): Playwright tests; they build and start the app themselves. Every spec runs on all four browser projects unless `playwright.config.ts` ignores it for a project (desktop-only, mobile-only and API-only specs). Shared helpers live in `e2e/*.ts` (`auth.ts`, `campaigns.ts`, `hydration.ts`, `mailpit.ts`, `mobile-menu.ts`, `page.ts`, `supabase.ts`).
 - `npx supabase start` / `npx supabase stop`: local Supabase in Docker (Studio http://127.0.0.1:54323, mail catcher http://127.0.0.1:54324)
 - `npx supabase status -o env`: local URLs and keys
 - `npm run db:types`: regenerate `src/lib/supabase/database.types.ts` from local Supabase after a migration. Typecheck fails if the `sport`, `campaign_type` or `account_type` enum drifts apart from its list in `src/lib/` (`sports.ts`, `campaignTypes.ts`, `accountTypes.ts`).

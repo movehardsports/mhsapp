@@ -52,7 +52,8 @@ src/
 ├── lib/
 │   ├── auth/            session helpers, sign-out
 │   ├── supabase/        server and proxy clients, database types
-│   └── …                account types, sports, campaign types, validation
+│   ├── onboarding/      birth year rules
+│   └── *.ts             account types, sports, campaign types, validation, shared types
 └── proxy.ts             refreshes the Supabase session
 supabase/                migrations, config, email templates
 e2e/                     Playwright tests and shared helpers

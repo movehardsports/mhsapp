@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { completeBrandOnboarding, signUp } from "./auth";
+import { completeAthleteOnboarding, completeBrandOnboarding, signUp } from "./auth";
 import { createCampaign, isoDate } from "./campaigns";
 import { gotoHydrated } from "./hydration";
 import { alert, main, skipBrowserValidation, sportsGroup } from "./page";
@@ -37,11 +37,17 @@ test.describe("access", () => {
     await expect(page).toHaveURL("/sign-in");
   });
 
-  test("athletes are sent away", async ({ page }, testInfo) => {
+  test("athletes without a profile finish their onboarding first", async ({ page }, testInfo) => {
     await signUp(page, testInfo, { accountType: "Athlete" });
     await page.goto("/dashboard/campaigns/new");
-    // To the dashboard, which sends an athlete without a profile on to their onboarding.
     await expect(page).toHaveURL("/onboarding/athlete");
+  });
+
+  test("onboarded athletes are sent to their dashboard", async ({ page }, testInfo) => {
+    await signUp(page, testInfo, { accountType: "Athlete" });
+    await completeAthleteOnboarding(page);
+    await page.goto("/dashboard/campaigns/new");
+    await expect(page).toHaveURL("/dashboard");
   });
 
   test("brands without a profile finish the onboarding first", async ({ page }, testInfo) => {
