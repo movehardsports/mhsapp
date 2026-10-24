@@ -4,8 +4,9 @@
 --
 -- Only the birth year is stored, so "18 or older" means turning 18 this year at the latest:
 -- birth_year <= this year - 18, in UTC like the app (src/lib/onboarding/validation.ts). A CHECK
--- constraint can't depend on today's date, hence a trigger. Ages only grow, so a saved row
--- never becomes invalid later.
+-- constraint can't depend on today's date, hence a trigger. Ages only grow, so a row saved from
+-- now on never becomes invalid later. Rows saved before this migration aren't checked; the
+-- hosted database had no athletes when it was written.
 
 create function private.check_athlete_min_age()
 returns trigger
