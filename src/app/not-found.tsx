@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { campaignsLink } from "@/components/header/navigation";
 import PageTitle from "@/components/ui/PageTitle";
 import { textLink } from "@/components/ui/styles";
 
@@ -15,7 +16,7 @@ export default function NotFound() {
       <PageTitle>Page not found</PageTitle>
       <p className="text-center text-foreground/70">
         This page doesn&apos;t exist, or isn&apos;t ready yet.{" "}
-        <Link href="/campaigns" className={textLink}>
+        <Link href={campaignsLink.href} className={textLink}>
           Browse campaigns
         </Link>{" "}
         instead.

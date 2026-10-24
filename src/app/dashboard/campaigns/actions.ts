@@ -91,10 +91,12 @@ export async function createCampaign(
   redirect("/dashboard");
 }
 
-// Pages that show campaigns: the brand's dashboard and the public list and campaign pages.
+// Pages that show campaigns: the brand's dashboard and edit pages, and the public list and
+// campaign pages.
 // Without this, going Back after a change can show a cached copy from before it.
 function revalidateCampaignPages() {
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/campaigns/[id]/edit", "page");
   revalidatePath("/campaigns");
   revalidatePath("/campaigns/[id]", "page");
 }
@@ -164,7 +166,7 @@ export async function deleteCampaign(campaignId: string) {
   if (error) throw new Error(`Deleting the campaign failed: ${error.code}`);
 
   revalidateCampaignPages();
-  // Replace, not push: Back shouldn't return to the page of a campaign that's gone, or to a
-  // second copy of the dashboard.
+  // Replace, not push: Back shouldn't return to the edit page of a campaign that's gone, or,
+  // when deleting from the dashboard, to a second copy of it.
   redirect("/dashboard", RedirectType.replace);
 }
