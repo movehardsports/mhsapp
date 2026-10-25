@@ -275,6 +275,7 @@ test.describe("edit and delete", () => {
       for (const id of [othersId, crypto.randomUUID(), "not-a-uuid"]) {
         const response = await page.goto(`/dashboard/campaigns/${id}/edit`);
         expect(response?.status(), id).toBe(404);
+        await expect(page, id).toHaveTitle("Page not found | MHS");
       }
     } finally {
       await other.close();

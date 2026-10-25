@@ -5,6 +5,7 @@ import { requireAccount } from "@/lib/auth/session";
 import { saveBrandProfile } from "@/lib/profiles/mutations";
 import { type BrandProfileValues, parseBrandProfile } from "@/lib/profiles/validation";
 import { createClient } from "@/lib/supabase/server";
+import { formDataOf } from "@/lib/validation";
 
 export type BrandOnboardingState =
   | { status: "idle" }
@@ -13,8 +14,9 @@ export type BrandOnboardingState =
 
 export async function saveBrandOnboarding(
   _prevState: BrandOnboardingState,
-  formData: FormData
+  payload: unknown
 ): Promise<BrandOnboardingState> {
+  const formData = formDataOf(payload);
   const supabase = await createClient();
   // Guests go to sign-in and athletes to their own onboarding, even when posting here directly.
   await requireAccount(supabase, "brand");

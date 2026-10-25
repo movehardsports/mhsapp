@@ -11,7 +11,7 @@ import {
 import { getBrandCampaign } from "@/lib/campaigns/queries";
 import { type CampaignValues, parseCampaign, readCampaignValues } from "@/lib/campaigns/validation";
 import { createClient } from "@/lib/supabase/server";
-import { isUuid } from "@/lib/validation";
+import { formDataOf, isUuid } from "@/lib/validation";
 
 export type CampaignFormState =
   | { status: "idle" }
@@ -30,8 +30,9 @@ function revalidateCampaignPages() {
 
 export async function createCampaign(
   _prevState: CampaignFormState,
-  formData: FormData
+  payload: unknown
 ): Promise<CampaignFormState> {
+  const formData = formDataOf(payload);
   const supabase = await createClient();
   // The page checks this too, but the action can be posted to directly.
   const { userId } = await requireOnboardedBrand(supabase);
@@ -56,8 +57,9 @@ export async function createCampaign(
 export async function updateCampaign(
   campaignId: string,
   _prevState: CampaignFormState,
-  formData: FormData
+  payload: unknown
 ): Promise<CampaignFormState> {
+  const formData = formDataOf(payload);
   const supabase = await createClient();
   const { userId } = await requireOnboardedBrand(supabase);
   if (!isUuid(campaignId)) redirect("/dashboard");

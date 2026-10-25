@@ -2,6 +2,7 @@
 
 import { type AccountType, isAccountType } from "@/lib/accountTypes";
 import { createClient } from "@/lib/supabase/server";
+import { formDataOf } from "@/lib/validation";
 
 export type SignUpState =
   | { status: "idle" }
@@ -13,7 +14,8 @@ export type SignUpState =
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_PASSWORD_BYTES = 72;
 
-export async function signUp(_prevState: SignUpState, formData: FormData): Promise<SignUpState> {
+export async function signUp(_prevState: SignUpState, payload: unknown): Promise<SignUpState> {
+  const formData = formDataOf(payload);
   const accountType = formData.get("accountType");
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");

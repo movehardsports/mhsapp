@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   cleanMultilineText,
   cleanText,
+  formDataOf,
   isUuid,
   parseDeadline,
   parseSports,
@@ -9,6 +10,22 @@ import {
 } from "@/lib/validation";
 
 const file = new File(["x"], "x.txt");
+
+describe("formDataOf", () => {
+  it("returns a form as it is", () => {
+    const form = new FormData();
+    form.set("title", "Spring Hyrox Open");
+    expect(formDataOf(form)).toBe(form);
+  });
+
+  it("turns anything else into an empty form", () => {
+    for (const payload of [undefined, null, "title=x", { title: "x" }]) {
+      const form = formDataOf(payload);
+      expect(form).toBeInstanceOf(FormData);
+      expect([...form.keys()]).toEqual([]);
+    }
+  });
+});
 
 describe("cleanText", () => {
   it("trims a single line", () => {

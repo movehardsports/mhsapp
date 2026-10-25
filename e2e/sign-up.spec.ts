@@ -31,6 +31,10 @@ test("has account type, email and password fields", async ({ page }) => {
   await expect(accountType.getByRole("radio", { name: "Brand" })).toBeAttached();
   await expect(page.getByLabel("Email")).toHaveAttribute("type", "email");
   await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute("type", "password");
+  // Screen readers read the hint with the field.
+  await expect(page.getByLabel("Password", { exact: true })).toHaveAccessibleDescription(
+    "At least 8 characters."
+  );
   await expect(page.getByLabel("Confirm password")).toHaveAttribute("type", "password");
 });
 
