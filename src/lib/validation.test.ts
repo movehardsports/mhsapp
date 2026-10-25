@@ -3,6 +3,7 @@ import {
   cleanMultilineText,
   cleanText,
   formDataOf,
+  hasVisibleText,
   isUuid,
   parseDeadline,
   parseSports,
@@ -27,6 +28,29 @@ describe("formDataOf", () => {
   });
 });
 
+describe("hasVisibleText", () => {
+  it("needs a visible character", () => {
+    expect(hasVisibleText("Jan")).toBe(true);
+    expect(hasVisibleText("\u200BJan")).toBe(true);
+    expect(hasVisibleText("")).toBe(false);
+    expect(hasVisibleText(" \u00A0\u3000\n")).toBe(false);
+  });
+
+  it("treats invisible format characters as blank", () => {
+    for (const invisible of [
+      "\u00AD",
+      "\u200B",
+      "\u200C",
+      "\u200D",
+      "\u200E",
+      "\u2060",
+      "\uFEFF",
+    ]) {
+      expect(hasVisibleText(invisible), invisible).toBe(false);
+    }
+  });
+});
+
 describe("cleanText", () => {
   it("trims a single line", () => {
     expect(cleanText("  Spring Hyrox Open  ", 100)).toBe("Spring Hyrox Open");
@@ -34,6 +58,7 @@ describe("cleanText", () => {
 
   it("rejects blank, too long and non-text values", () => {
     expect(cleanText("   ", 100)).toBeNull();
+    expect(cleanText("\u200B", 100)).toBeNull();
     expect(cleanText("abcd", 3)).toBeNull();
     expect(cleanText(null, 100)).toBeNull();
     expect(cleanText(file, 100)).toBeNull();
@@ -62,6 +87,7 @@ describe("cleanMultilineText", () => {
 
   it("rejects blank, too long and non-text values", () => {
     expect(cleanMultilineText(" \n\t ", 100)).toBeNull();
+    expect(cleanMultilineText("\u200B\n\u200D", 100)).toBeNull();
     expect(cleanMultilineText("abcd", 3)).toBeNull();
     expect(cleanMultilineText(null, 100)).toBeNull();
     expect(cleanMultilineText(file, 100)).toBeNull();

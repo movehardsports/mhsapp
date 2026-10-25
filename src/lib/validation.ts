@@ -6,14 +6,29 @@ export function formDataOf(payload: unknown): FormData {
   return payload instanceof FormData ? payload : new FormData();
 }
 
+// Whitespace and invisible format characters: soft hyphen, zero-width spaces and joiners,
+// direction marks, word joiner and friends, byte order mark. A value made only of these looks
+// blank. Same set as the database's checks (supabase/migrations/*_reject_invisible_text.sql).
+const VISIBLE_CHARACTER = /[^\s\u00AD\u200B-\u200F\u2060-\u2064\uFEFF]/u;
+
+// Whether the text has at least one visible character.
+export function hasVisibleText(value: string) {
+  return VISIBLE_CHARACTER.test(value);
+}
+
 // Mirrors the database's trimmed_text domain: one line, no surrounding whitespace, not blank.
 // Line and paragraph separators count as control characters too: some Postgres locales treat
 // them that way.
-// Returns the trimmed value, or null when it's blank, too long or spans several lines.
+// Returns the trimmed value, or null when it's blank (nothing visible), too long or spans
+// several lines.
 export function cleanText(value: FormDataEntryValue | null, maxLength: number) {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
-  if (trimmed === "" || trimmed.length > maxLength || /[\p{Cc}\u2028\u2029]/u.test(trimmed)) {
+  if (
+    !hasVisibleText(trimmed) ||
+    trimmed.length > maxLength ||
+    /[\p{Cc}\u2028\u2029]/u.test(trimmed)
+  ) {
     return null;
   }
   return trimmed;
@@ -24,7 +39,7 @@ export function cleanText(value: FormDataEntryValue | null, maxLength: number) {
 export function cleanMultilineText(value: FormDataEntryValue | null, maxLength: number) {
   if (typeof value !== "string") return null;
   const cleaned = value.replace(/\r\n?/g, "\n").trim();
-  if (cleaned === "" || cleaned.length > maxLength) return null;
+  if (!hasVisibleText(cleaned) || cleaned.length > maxLength) return null;
   return cleaned;
 }
 

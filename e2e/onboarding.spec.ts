@@ -169,6 +169,13 @@ test.describe("athlete onboarding", () => {
     await page.getByLabel("Nickname").fill("   ");
     await submit(page).click();
     await expect(alert(page)).toHaveText("Enter a nickname (up to 50 characters).");
+    // Invisible characters alone look blank too; the browser's `required` accepts them.
+    // The message is the same as before, so wait for the answer itself: it resets the form.
+    await page.getByLabel("Nickname").fill("\u200B");
+    const answered = page.waitForResponse((response) => response.request().method() === "POST");
+    await submit(page).click();
+    await answered;
+    await expect(alert(page)).toHaveText("Enter a nickname (up to 50 characters).");
 
     await page.getByLabel("Nickname").fill("  JD  ");
     await submit(page).click();

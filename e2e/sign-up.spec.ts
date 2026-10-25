@@ -110,6 +110,18 @@ test("an email that already has an account gets the usual answer", async ({ page
   await expect(page.getByRole("main").getByRole("link", { name: "Sign in" })).toBeVisible();
 });
 
+test("rejects a password made only of spaces", async ({ page }, testInfo) => {
+  await fillValidForm(page, "Athlete", uniqueEmail(testInfo));
+  // Eight spaces pass the browser's minLength.
+  await page.getByLabel("Password", { exact: true }).fill(" ".repeat(8));
+  await page.getByLabel("Confirm password").fill(" ".repeat(8));
+  await form(page).getByRole("button", { name: "Sign up" }).click();
+
+  await expect(page.getByRole("main").getByRole("alert")).toHaveText(
+    "Your password can't be only spaces."
+  );
+});
+
 test("a confirmation link can't be used twice", async ({ page }, testInfo) => {
   const email = uniqueEmail(testInfo);
   await fillValidForm(page, "Athlete", email);

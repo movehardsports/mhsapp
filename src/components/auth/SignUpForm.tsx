@@ -6,6 +6,7 @@ import Field from "@/components/forms/Field";
 import SubmitButton from "@/components/forms/SubmitButton";
 import { checkableTile, formError } from "@/components/ui/styles";
 import { accountTypeLabels, accountTypes } from "@/lib/accountTypes";
+import { EMAIL_MAX, MIN_PASSWORD_LENGTH } from "@/lib/auth/validation";
 
 const initialState: SignUpState = { status: "idle" };
 
@@ -67,16 +68,17 @@ export default function SignUpForm() {
         type="email"
         required
         autoComplete="email"
+        maxLength={EMAIL_MAX}
         defaultValue={previous?.email}
       />
       <Field
         ref={passwordRef}
         id="password"
         label="Password"
-        hint="At least 8 characters."
+        hint={`At least ${MIN_PASSWORD_LENGTH} characters.`}
         type="password"
         required
-        minLength={8}
+        minLength={MIN_PASSWORD_LENGTH}
         autoComplete="new-password"
         onInput={checkPasswordsMatch}
       />
