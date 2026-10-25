@@ -30,6 +30,10 @@ export default function SignUpForm() {
           We sent a confirmation link to <strong className="text-foreground">{state.email}</strong>.
           Open it to finish signing up.
         </p>
+        {/* The same answer comes for an email that already has an account, which gets no link. */}
+        <p className="text-foreground/70">
+          No email? If you already have an account with this address, sign in instead.
+        </p>
       </div>
     );
   }

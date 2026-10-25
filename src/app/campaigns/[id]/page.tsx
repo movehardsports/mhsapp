@@ -31,9 +31,9 @@ export default async function CampaignPage({ params }: PageProps<"/campaigns/[id
   return (
     <PageMain width="wide">
       <PageTitle>{campaign.title}</PageTitle>
-      <dl className="mb-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+      <dl className="mb-8 grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2 text-sm">
         <dt className="text-foreground/70">Brand</dt>
-        <dd>{campaign.brand.name}</dd>
+        <dd className="break-words">{campaign.brand.name}</dd>
         <dt className="text-foreground/70">Type</dt>
         <dd>{campaignTypeLabels[campaign.type]}</dd>
         <dt className="text-foreground/70">Sports</dt>
@@ -50,8 +50,8 @@ export default async function CampaignPage({ params }: PageProps<"/campaigns/[id
           Applications closed
         </p>
       )}
-      {/* The description is multi-line; keep its line breaks. */}
-      <p className="whitespace-pre-line">{campaign.description}</p>
+      {/* The description is multi-line; keep its line breaks, and break long words and URLs. */}
+      <p className="break-words whitespace-pre-line">{campaign.description}</p>
     </PageMain>
   );
 }

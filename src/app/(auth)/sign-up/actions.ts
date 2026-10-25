@@ -54,6 +54,12 @@ export async function signUp(_prevState: SignUpState, formData: FormData): Promi
         return fail("Choose a stronger password.");
       case "email_address_invalid":
         return fail("Enter a valid email address.");
+      // Auth only says this when phone or email autoconfirm is on (see [auth.sms] in
+      // supabase/config.toml). Answer like any other sign-up, so the form never reveals
+      // which emails have accounts.
+      case "user_already_exists":
+      case "email_exists":
+        return { status: "check-email", email };
       case "over_request_rate_limit":
       case "over_email_send_rate_limit":
         return fail("Too many attempts. Wait a few minutes and try again.");
@@ -63,7 +69,8 @@ export async function signUp(_prevState: SignUpState, formData: FormData): Promi
     }
   }
 
-  // With email confirmation on, Supabase answers the same way whether or not the email is
-  // already registered, so this message doesn't reveal which emails have accounts.
+  // With email confirmation on, Auth answers the same way whether or not the email is already
+  // registered (it sends a new link only for new or unconfirmed accounts), so this message
+  // doesn't reveal which emails have accounts. The page says what to do if you already have one.
   return { status: "check-email", email };
 }
