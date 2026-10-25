@@ -3,6 +3,7 @@ import {
   cleanMultilineText,
   cleanText,
   formDataOf,
+  hasVisibleText,
   isUuid,
   parseDeadline,
   parseSports,
@@ -27,6 +28,33 @@ describe("formDataOf", () => {
   });
 });
 
+describe("hasVisibleText", () => {
+  it("needs a visible character", () => {
+    expect(hasVisibleText("Jan")).toBe(true);
+    expect(hasVisibleText("\u200BJan")).toBe(true);
+    expect(hasVisibleText("")).toBe(false);
+    expect(hasVisibleText(" \u00A0\u3000\n")).toBe(false);
+  });
+
+  it("treats invisible characters as blank, including the ends of each range", () => {
+    const invisible = [
+      ...["\t", "\v", "\u0085", "\u00A0", "\u1680", "\u2000", "\u200A", "\u202F", "\u3000"],
+      ...["\u00AD", "\u034F", "\u061C", "\u17B4", "\u17B5", "\u180B", "\u180F"],
+      ...["\u200B", "\u200F", "\u2028", "\u202E", "\u205F", "\u2064", "\u2066", "\u206F"],
+      ...["\u115F", "\u1160", "\u3164", "\uFFA0", "\u2800", "\uFE00", "\uFE0F", "\uFEFF"],
+    ];
+    for (const character of invisible) {
+      expect(hasVisibleText(character), character).toBe(false);
+    }
+  });
+
+  it("counts the characters just outside the ranges as visible", () => {
+    for (const character of ["\u180A", "\u2030", "\u2070", "\uFE10"]) {
+      expect(hasVisibleText(character), character).toBe(true);
+    }
+  });
+});
+
 describe("cleanText", () => {
   it("trims a single line", () => {
     expect(cleanText("  Spring Hyrox Open  ", 100)).toBe("Spring Hyrox Open");
@@ -34,6 +62,7 @@ describe("cleanText", () => {
 
   it("rejects blank, too long and non-text values", () => {
     expect(cleanText("   ", 100)).toBeNull();
+    expect(cleanText("\u200B", 100)).toBeNull();
     expect(cleanText("abcd", 3)).toBeNull();
     expect(cleanText(null, 100)).toBeNull();
     expect(cleanText(file, 100)).toBeNull();
@@ -62,6 +91,7 @@ describe("cleanMultilineText", () => {
 
   it("rejects blank, too long and non-text values", () => {
     expect(cleanMultilineText(" \n\t ", 100)).toBeNull();
+    expect(cleanMultilineText("\u200B\n\u200D", 100)).toBeNull();
     expect(cleanMultilineText("abcd", 3)).toBeNull();
     expect(cleanMultilineText(null, 100)).toBeNull();
     expect(cleanMultilineText(file, 100)).toBeNull();

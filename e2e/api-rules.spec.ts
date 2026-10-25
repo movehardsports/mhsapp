@@ -52,6 +52,43 @@ test("athletes must be 18 or older, however they save their profile", async ({
   expect(row.birth_year).toBe(thisYear - 18);
 });
 
+test("names and descriptions need a visible character", async ({ page }, testInfo) => {
+  await signUp(page, testInfo, { accountType: "Brand" });
+  const token = await accessToken(page.context());
+  const brandId = await userId(page.context());
+
+  // A zero-width space alone isn't a name (the trimmed_text domain).
+  const invisible = await rest("rpc/save_brand_profile", {
+    method: "POST",
+    token,
+    body: { p_name: "\u200B", p_sports: ["hyrox"] },
+  });
+  expect(invisible.status).toBe(400);
+  expect((await invisible.json()).code).toBe("23514");
+
+  const saved = await rest("rpc/save_brand_profile", {
+    method: "POST",
+    token,
+    body: { p_name: "\u200BMove Hard", p_sports: ["hyrox"] },
+  });
+  expect(saved.status).toBe(204);
+
+  // Nor is a campaign description made of invisible characters.
+  const campaign = await rest("campaigns", {
+    method: "POST",
+    token,
+    body: {
+      brand_id: brandId,
+      type: "event",
+      title: "Spring Hyrox Open",
+      description: "\u200B\u2060",
+      sports: ["hyrox"],
+    },
+  });
+  expect(campaign.status).toBe(400);
+  expect((await campaign.json()).code).toBe("23514");
+});
+
 test("passwords need at least 8 characters", async ({}, testInfo) => {
   const signUpWith = (password: string) =>
     auth("signup", {

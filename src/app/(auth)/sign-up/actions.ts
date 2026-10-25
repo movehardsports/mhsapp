@@ -1,6 +1,7 @@
 "use server";
 
 import { type AccountType, isAccountType } from "@/lib/accountTypes";
+import { isEmailLike, passwordProblem } from "@/lib/auth/validation";
 import { createClient } from "@/lib/supabase/server";
 import { formDataOf } from "@/lib/validation";
 
@@ -9,10 +10,6 @@ export type SignUpState =
   // Echo back what the user typed (never the password) so the form keeps it after an error.
   | { status: "error"; message: string; email: string; accountType: AccountType | null }
   | { status: "check-email"; email: string };
-
-// Supabase hashes passwords with bcrypt, which only uses the first 72 bytes.
-const MIN_PASSWORD_LENGTH = 8;
-const MAX_PASSWORD_BYTES = 72;
 
 export async function signUp(_prevState: SignUpState, payload: unknown): Promise<SignUpState> {
   const formData = formDataOf(payload);
@@ -31,13 +28,9 @@ export async function signUp(_prevState: SignUpState, payload: unknown): Promise
   // The browser checks all of this too, but a form posted before hydration (or by hand)
   // skips those checks.
   if (!isAccountType(accountType)) return fail("Choose an account type.");
-  if (!/^[^\s@]+@[^\s@]+$/.test(email)) return fail("Enter a valid email address.");
-  if (password.length < MIN_PASSWORD_LENGTH) {
-    return fail(`Use at least ${MIN_PASSWORD_LENGTH} characters for your password.`);
-  }
-  if (new TextEncoder().encode(password).length > MAX_PASSWORD_BYTES) {
-    return fail("Your password is too long.");
-  }
+  if (!isEmailLike(email)) return fail("Enter a valid email address.");
+  const problem = passwordProblem(password);
+  if (problem) return fail(problem);
   if (password !== confirmPassword) return fail("Passwords don't match.");
 
   const supabase = await createClient();
@@ -55,6 +48,11 @@ export async function signUp(_prevState: SignUpState, payload: unknown): Promise
       case "weak_password":
         return fail("Choose a stronger password.");
       case "email_address_invalid":
+        return fail("Enter a valid email address.");
+      // Auth's own email checks (format, length) answer this; the password and account type
+      // are checked above. Log it anyway: other request problems answer it too.
+      case "validation_failed":
+        console.error("Sign-up failed", error.code, error.message);
         return fail("Enter a valid email address.");
       // Auth only says this when phone or email autoconfirm is on (see [auth.sms] in
       // supabase/config.toml). Answer like any other sign-up, so the form never reveals

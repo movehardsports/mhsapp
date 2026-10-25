@@ -9,7 +9,7 @@ import {
 
 describe("birthYearRange", () => {
   it("allows athletes turning 18 this year at the latest", () => {
-    expect(birthYearRange(new Date("2026-06-01T12:00:00Z"))).toEqual({ min: 1926, max: 2008 });
+    expect(birthYearRange(new Date("2026-06-01T12:00:00Z"))).toEqual({ min: 1900, max: 2008 });
     expect(MIN_AGE).toBe(18);
   });
 

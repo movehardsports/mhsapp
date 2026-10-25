@@ -6,14 +6,33 @@ export function formDataOf(payload: unknown): FormData {
   return payload instanceof FormData ? payload : new FormData();
 }
 
+// Characters that show nothing: whitespace (ASCII and Unicode spaces, NEL, line and paragraph
+// separators), soft hyphen, zero-width spaces and joiners, direction marks, embeddings and
+// isolates, Hangul fillers, variation selectors, braille blank, byte order mark. A value made
+// only of these looks blank. Listed one by one rather than with `\s`, whose meaning in
+// Postgres depends on the database's locale; the database checks the same list
+// (supabase/migrations/*_reject_invisible_text.sql).
+const VISIBLE_CHARACTER =
+  /[^\t\n\v\f\r \u0085\u00A0\u00AD\u034F\u061C\u115F\u1160\u1680\u17B4\u17B5\u180B-\u180F\u2000-\u200F\u2028-\u202F\u205F-\u206F\u2800\u3000\u3164\uFE00-\uFE0F\uFEFF\uFFA0]/u;
+
+// Whether the text has at least one visible character.
+export function hasVisibleText(value: string) {
+  return VISIBLE_CHARACTER.test(value);
+}
+
 // Mirrors the database's trimmed_text domain: one line, no surrounding whitespace, not blank.
 // Line and paragraph separators count as control characters too: some Postgres locales treat
 // them that way.
-// Returns the trimmed value, or null when it's blank, too long or spans several lines.
+// Returns the trimmed value, or null when it's blank (nothing visible), too long or spans
+// several lines.
 export function cleanText(value: FormDataEntryValue | null, maxLength: number) {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
-  if (trimmed === "" || trimmed.length > maxLength || /[\p{Cc}\u2028\u2029]/u.test(trimmed)) {
+  if (
+    !hasVisibleText(trimmed) ||
+    trimmed.length > maxLength ||
+    /[\p{Cc}\u2028\u2029]/u.test(trimmed)
+  ) {
     return null;
   }
   return trimmed;
@@ -24,7 +43,7 @@ export function cleanText(value: FormDataEntryValue | null, maxLength: number) {
 export function cleanMultilineText(value: FormDataEntryValue | null, maxLength: number) {
   if (typeof value !== "string") return null;
   const cleaned = value.replace(/\r\n?/g, "\n").trim();
-  if (cleaned === "" || cleaned.length > maxLength) return null;
+  if (!hasVisibleText(cleaned) || cleaned.length > maxLength) return null;
   return cleaned;
 }
 
