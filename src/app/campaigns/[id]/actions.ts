@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { RedirectType, redirect } from "next/navigation";
 import { deletePendingApplication, insertApplication } from "@/lib/applications/mutations";
 import { type ApplicationValues, parseApplication } from "@/lib/applications/validation";
 import { requireOnboardedAccount } from "@/lib/auth/session";
@@ -63,7 +63,8 @@ export async function applyToCampaign(
   // Sent, or the campaign closed or went away meanwhile: either way, show the page as it is
   // now ("Your application", "Applications closed" or not found).
   revalidateApplicationPages(campaignId);
-  redirect(`/campaigns/${campaignId}`);
+  // Replace, not push: Back shouldn't stop on the same page before the action.
+  redirect(`/campaigns/${campaignId}`, RedirectType.replace);
 }
 
 // Bound to the campaign's id by the campaign page.
@@ -73,5 +74,6 @@ export async function withdrawApplication(boundId: unknown) {
   if (!result.ok) throw new Error("Withdrawing the application failed");
 
   revalidateApplicationPages(campaignId);
-  redirect(`/campaigns/${campaignId}`);
+  // Replace, not push: Back shouldn't stop on the same page before the action.
+  redirect(`/campaigns/${campaignId}`, RedirectType.replace);
 }

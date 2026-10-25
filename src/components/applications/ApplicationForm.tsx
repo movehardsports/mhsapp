@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import type { ApplicationFormState } from "@/app/campaigns/[id]/actions";
+import { cancelSectionFocus, requestSectionFocus } from "@/components/applications/SectionHeading";
 import SubmitButton from "@/components/forms/SubmitButton";
 import { formError, inputField } from "@/components/ui/styles";
 import { APPLICATION_MESSAGE_MAX } from "@/lib/applications/validation";
@@ -21,11 +22,13 @@ export default function ApplicationForm({ action }: Props) {
   // After an error, back to the message, which the error now describes: the submit button lost
   // focus while it was disabled.
   useEffect(() => {
-    if (state.status === "error") messageRef.current?.focus();
+    if (state.status !== "error") return;
+    cancelSectionFocus();
+    messageRef.current?.focus();
   }, [state]);
 
   return (
-    <form action={formAction} className="flex flex-col gap-5">
+    <form action={formAction} onSubmit={requestSectionFocus} className="flex flex-col gap-5">
       <div className="flex flex-col gap-2">
         <label htmlFor="message" className="text-sm font-medium">
           Message to the brand

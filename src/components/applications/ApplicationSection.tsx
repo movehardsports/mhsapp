@@ -2,7 +2,7 @@ import Link from "next/link";
 import { applyToCampaign, withdrawApplication } from "@/app/campaigns/[id]/actions";
 import ApplicationForm from "@/components/applications/ApplicationForm";
 import SectionHeading from "@/components/applications/SectionHeading";
-import SubmitButton from "@/components/forms/SubmitButton";
+import WithdrawApplication from "@/components/applications/WithdrawApplication";
 import { signInLink, signUpLink } from "@/components/header/navigation";
 import { textLink } from "@/components/ui/styles";
 import { type ApplicationStatus, applicationStatusLabels } from "@/lib/applications/statuses";
@@ -43,19 +43,10 @@ export default function ApplicationSection({
           {application.message}
         </p>
         {application.status === "pending" && (
-          <form action={withdrawApplication.bind(null, campaignId)} className="mt-4">
-            {closed && (
-              <p className="mb-2 text-sm text-foreground/70">
-                Applications are closed, so you can&apos;t apply again once you withdraw.
-              </p>
-            )}
-            <SubmitButton
-              pendingLabel="Withdrawing…"
-              className="cursor-pointer text-sm font-medium text-red-600 underline-offset-4 hover:underline dark:text-red-400"
-            >
-              Withdraw application
-            </SubmitButton>
-          </form>
+          <WithdrawApplication
+            action={withdrawApplication.bind(null, campaignId)}
+            closed={closed}
+          />
         )}
       </Section>
     );

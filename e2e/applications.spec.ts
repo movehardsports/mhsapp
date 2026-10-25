@@ -1,5 +1,5 @@
 import { type Browser, expect, type Page, test, type TestInfo } from "@playwright/test";
-import { completeAthleteOnboarding, completeBrandOnboarding, signUp } from "./auth";
+import { accountArea, completeAthleteOnboarding, completeBrandOnboarding, signUp } from "./auth";
 import { createCampaign, isoDate } from "./campaigns";
 import { accessToken, rest, userId } from "./supabase";
 import { gotoHydrated } from "./hydration";
@@ -154,7 +154,7 @@ test("the dashboard marks campaigns whose deadline has passed", async ({ page },
 test("focus follows the section after applying, withdrawing and errors", async ({
   browser,
 }, testInfo) => {
-  const { id } = await brandWithCampaign(browser, testInfo);
+  const { id, title } = await brandWithCampaign(browser, testInfo);
   const athlete = await onboardedAthlete(browser, testInfo);
   await gotoHydrated(athlete, `/campaigns/${id}`);
 
@@ -178,6 +178,16 @@ test("focus follows the section after applying, withdrawing and errors", async (
     .getByRole("button", { name: "Withdraw application" })
     .press("Enter");
   await expect(athlete.getByRole("heading", { name: "Apply", exact: true })).toBeFocused();
+
+  // Coming back to the campaign by links (client-side navigation) leaves focus alone.
+  const header = await accountArea(athlete);
+  await header.getByRole("link", { name: "Campaigns", exact: true }).click();
+  await expect(athlete).toHaveURL("/campaigns");
+  await main(athlete).getByRole("link", { name: title }).click();
+  await expect(athlete).toHaveURL(`/campaigns/${id}`);
+  const heading = athlete.getByRole("heading", { name: "Apply", exact: true });
+  await expect(heading).toBeVisible();
+  await expect(heading).not.toBeFocused();
 });
 
 test("applying after the campaign closed shows it closed", async ({ browser }, testInfo) => {
