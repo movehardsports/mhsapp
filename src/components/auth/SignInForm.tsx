@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { type SignInState, signIn } from "@/app/(auth)/sign-in/actions";
 import Field from "@/components/forms/Field";
 import SubmitButton from "@/components/forms/SubmitButton";
-import { formError } from "@/components/ui/styles";
+import { resendConfirmationLink } from "@/components/header/navigation";
+import { formError, textLink } from "@/components/ui/styles";
 
 const initialState: SignInState = { status: "idle" };
 
@@ -33,6 +35,13 @@ export default function SignInForm() {
       {previous && (
         <p role="alert" className={formError}>
           {previous.message}
+        </p>
+      )}
+      {previous?.unconfirmed && (
+        <p className="text-sm">
+          <Link href={resendConfirmationLink.href} className={textLink}>
+            {resendConfirmationLink.label}
+          </Link>
         </p>
       )}
 

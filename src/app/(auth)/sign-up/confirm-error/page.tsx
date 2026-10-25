@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { signInLink, signUpLink } from "@/components/header/navigation";
+import { resendConfirmationLink, signInLink } from "@/components/header/navigation";
 import PageTitle from "@/components/ui/PageTitle";
 import { textLink } from "@/components/ui/styles";
 
@@ -18,15 +18,11 @@ export default function ConfirmErrorPage() {
         <Link href={signInLink.href} className={textLink}>
           sign in
         </Link>
-        . Otherwise{" "}
-        <Link href={signUpLink.href} className={textLink}>
-          sign up again
-        </Link>{" "}
-        with the same email to get a new link.
-      </p>
-      {/* The profile is created once, on the first sign-up (see supabase/migrations). */}
-      <p className="mt-3 text-foreground/70">
-        Your account keeps the account type you chose the first time.
+        . Otherwise,{" "}
+        <Link href={resendConfirmationLink.href} className={textLink}>
+          get a new link
+        </Link>
+        .
       </p>
     </>
   );

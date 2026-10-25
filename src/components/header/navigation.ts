@@ -16,4 +16,9 @@ export const navLinks: NavLink[] = [
 
 export const signInLink: NavLink = { href: "/sign-in", label: "Sign in" };
 export const signUpLink: NavLink = { href: "/sign-up", label: "Sign up" };
+// For accounts whose confirmation email got lost or whose link expired.
+export const resendConfirmationLink: NavLink = {
+  href: "/sign-up/resend",
+  label: "Send a new confirmation link",
+};
 export const dashboardLink: NavLink = { href: "/dashboard", label: "Dashboard" };

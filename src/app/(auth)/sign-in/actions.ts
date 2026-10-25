@@ -10,7 +10,8 @@ import { formDataOf } from "@/lib/validation";
 export type SignInState =
   | { status: "idle" }
   // Echo back the email (never the password) so the form keeps it after an error.
-  | { status: "error"; message: string; email: string };
+  // `unconfirmed`: the form offers a new confirmation link.
+  | { status: "error"; message: string; email: string; unconfirmed?: true };
 
 export async function signIn(_prevState: SignInState, payload: unknown): Promise<SignInState> {
   const formData = formDataOf(payload);
@@ -33,7 +34,12 @@ export async function signIn(_prevState: SignInState, payload: unknown): Promise
         return fail("Wrong email or password.");
       // Supabase only reports this after the password matched.
       case "email_not_confirmed":
-        return fail("Confirm your email first: open the link we sent when you signed up.");
+        return {
+          status: "error",
+          message: "Confirm your email first: open the link we sent when you signed up.",
+          email,
+          unconfirmed: true,
+        };
       case "over_request_rate_limit":
         return fail("Too many attempts. Wait a few minutes and try again.");
       default:
