@@ -82,7 +82,7 @@ test.describe("athlete onboarding", () => {
 
   test("shows the athlete fields", async ({ page }) => {
     await expect(page).toHaveTitle("Set up your athlete profile | MHS");
-    await expect(page.getByRole("heading", { name: "Onboarding" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Tell us about yourself" })).toBeVisible();
     for (const label of ["First name", "Last name", "Nickname", "Year of birth", "City"]) {
       await expect(page.getByLabel(label)).toBeVisible();
     }

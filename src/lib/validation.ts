@@ -1,5 +1,11 @@
 import { isSport, type Sport } from "@/lib/sports";
 
+// Server Actions can be called by hand with any arguments, not only a form. Treat anything
+// else as an empty form, so such a call gets the usual validation errors instead of a crash.
+export function formDataOf(payload: unknown): FormData {
+  return payload instanceof FormData ? payload : new FormData();
+}
+
 // Mirrors the database's trimmed_text domain: one line, no surrounding whitespace, not blank.
 // Line and paragraph separators count as control characters too: some Postgres locales treat
 // them that way.

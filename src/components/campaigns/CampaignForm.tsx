@@ -17,7 +17,7 @@ import { sportGroups } from "@/lib/sports";
 const initialState: CampaignFormState = { status: "idle" };
 
 type Props = {
-  action: (state: CampaignFormState, formData: FormData) => Promise<CampaignFormState>;
+  action: (state: CampaignFormState, payload: unknown) => Promise<CampaignFormState>;
   initialValues: CampaignValues;
   submitLabel: string;
   // Shown on the submit button while saving, e.g. "Creating…".

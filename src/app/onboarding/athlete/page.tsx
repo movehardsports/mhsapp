@@ -19,7 +19,7 @@ export default async function AthleteOnboardingPage() {
 
   return (
     <>
-      <PageTitle>Onboarding</PageTitle>
+      <PageTitle>Tell us about yourself</PageTitle>
       <AthleteOnboardingForm
         saved={{
           firstName: athlete?.first_name ?? "",

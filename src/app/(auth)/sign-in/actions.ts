@@ -5,13 +5,15 @@ import { redirect } from "next/navigation";
 import { onboardingPath } from "@/lib/accountTypes";
 import { getAccount, hasOnboarded } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { formDataOf } from "@/lib/validation";
 
 export type SignInState =
   | { status: "idle" }
   // Echo back the email (never the password) so the form keeps it after an error.
   | { status: "error"; message: string; email: string };
 
-export async function signIn(_prevState: SignInState, formData: FormData): Promise<SignInState> {
+export async function signIn(_prevState: SignInState, payload: unknown): Promise<SignInState> {
+  const formData = formDataOf(payload);
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
 
