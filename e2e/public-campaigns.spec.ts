@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { completeBrandOnboarding, signUp } from "./auth";
 import { createCampaign, isoDate } from "./campaigns";
 import { main } from "./page";
+import { accessToken, rest, userId } from "./supabase";
 
 // Other tests create campaigns in the same database, so every title here is unique. The list
 // shows the newest 50 campaigns; these are created just before each test reads it.
@@ -73,5 +74,30 @@ test("unknown and malformed campaign ids are a 404", async ({ page }) => {
     const response = await page.goto(`/campaigns/${id}`);
     expect(response?.status()).toBe(404);
     await expect(page).toHaveTitle("Page not found | MHS");
+  }
+});
+
+test("long words and URLs wrap instead of widening the page", async ({ page }, testInfo) => {
+  await signUp(page, testInfo, { accountType: "Brand" });
+  await completeBrandOnboarding(page);
+  // The longest brand name the form allows, without spaces.
+  const response = await rest(`brands?id=eq.${await userId(page.context())}`, {
+    method: "PATCH",
+    token: await accessToken(page.context()),
+    body: { name: "W".repeat(100) },
+  });
+  expect(response.status).toBe(204);
+  const id = await createCampaign(page, {
+    title: uniqueTitle("Long words"),
+    description: `Details: https://example.com/${"segment/".repeat(30)}end`,
+  });
+
+  await page.setViewportSize({ width: 375, height: 800 });
+  for (const path of ["/campaigns", `/campaigns/${id}`]) {
+    await page.goto(path);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth
+    );
+    expect(overflow, path).toBeLessThanOrEqual(0);
   }
 });

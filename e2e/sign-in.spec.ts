@@ -1,5 +1,11 @@
 import { expect, type Page, test } from "@playwright/test";
-import { accountArea, completeBrandOnboarding, signUp, TEST_PASSWORD } from "./auth";
+import {
+  accountArea,
+  completeAthleteOnboarding,
+  completeBrandOnboarding,
+  signUp,
+  TEST_PASSWORD,
+} from "./auth";
 import { gotoHydrated } from "./hydration";
 
 const form = (page: Page) => page.getByRole("main").locator("form");
@@ -109,4 +115,21 @@ test("after onboarding, signing in goes home and the dashboard signs out", async
   account = await accountArea(page);
   await expect(account.getByRole("link", { name: "Sign in" })).toBeVisible();
   await expect(account.getByRole("link", { name: "Dashboard" })).toHaveCount(0);
+});
+
+test("signed-in users skip the sign-in and sign-up pages", async ({ page }, testInfo) => {
+  await signUp(page, testInfo);
+  const paths = ["/sign-in", "/sign-up"];
+
+  // The dashboard sends users who haven't finished the onboarding on to it.
+  for (const path of paths) {
+    await page.goto(path);
+    await expect(page).toHaveURL("/onboarding/athlete");
+  }
+
+  await completeAthleteOnboarding(page);
+  for (const path of paths) {
+    await page.goto(path);
+    await expect(page).toHaveURL("/dashboard");
+  }
 });

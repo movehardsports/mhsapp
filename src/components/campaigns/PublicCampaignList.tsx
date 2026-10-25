@@ -35,7 +35,7 @@ export default function PublicCampaignList({ campaigns }: { campaigns: PublicCam
             >
               {campaign.title}
             </Link>
-            <p className="mt-1 text-sm text-foreground/70">{campaign.brand.name}</p>
+            <p className="mt-1 text-sm break-words text-foreground/70">{campaign.brand.name}</p>
             <p className="mt-1 text-xs tracking-wide text-foreground/70 uppercase">
               {campaign.sports.map((sport) => sportLabels[sport]).join(", ")}
             </p>

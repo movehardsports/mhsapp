@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import SignInForm from "@/components/auth/SignInForm";
 import { signUpLink } from "@/components/header/navigation";
 import PageTitle from "@/components/ui/PageTitle";
 import { textLink } from "@/components/ui/styles";
+import { isSignedIn } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
   title: "Sign in",
 };
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  // Signed-in users have nothing to do here; the dashboard sends them on to their onboarding
+  // if it isn't done.
+  if (await isSignedIn()) redirect("/dashboard");
+
   return (
     <>
       <PageTitle>Sign in to your account</PageTitle>

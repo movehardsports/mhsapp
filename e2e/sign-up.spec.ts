@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { TEST_PASSWORD } from "./auth";
+import { signUp, TEST_PASSWORD } from "./auth";
 import { gotoHydrated } from "./hydration";
 import { confirmationLinkPath, uniqueEmail } from "./mailpit";
 
@@ -88,6 +88,22 @@ test("checks the form on the server too", async ({ page }, testInfo) => {
   await expect(page.getByLabel("Brand")).toBeChecked();
   await expect(page.getByLabel("Email")).toHaveValue(email);
   await expect(page.getByLabel("Password", { exact: true })).toHaveValue("");
+});
+
+test("an email that already has an account gets the usual answer", async ({ page }, testInfo) => {
+  const email = await signUp(page, testInfo);
+  await page.context().clearCookies();
+
+  await gotoHydrated(page, "/sign-up");
+  await fillValidForm(page, "Brand", email);
+  await form(page).getByRole("button", { name: "Sign up" }).click();
+
+  // The same answer as for a new email, so the form doesn't reveal which emails have accounts,
+  // with a hint for users who already have one.
+  const status = page.getByRole("status");
+  await expect(status).toContainText("Check your email");
+  await expect(status).toContainText("If you already have an account with this address");
+  await expect(page.getByRole("main").getByRole("link", { name: "Sign in" })).toBeVisible();
 });
 
 test("a confirmation link can't be used twice", async ({ page }, testInfo) => {
