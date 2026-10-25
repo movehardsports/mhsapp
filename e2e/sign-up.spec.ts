@@ -110,6 +110,18 @@ test("an email that already has an account gets the usual answer", async ({ page
   await expect(page.getByRole("main").getByRole("link", { name: "Sign in" })).toBeVisible();
 });
 
+test("an email Auth can't accept gets the email message", async ({ page }, testInfo) => {
+  await fillValidForm(page, "Athlete", uniqueEmail(testInfo));
+  // The browser's email check would stop this first; skip it, like a form posted by hand.
+  await form(page).evaluate((el) => el.setAttribute("novalidate", ""));
+  await page.getByLabel("Email").fill(`zażółć-${crypto.randomUUID().slice(0, 8)}@example.com`);
+  await form(page).getByRole("button", { name: "Sign up" }).click();
+
+  await expect(page.getByRole("main").getByRole("alert")).toHaveText(
+    "Enter a valid email address."
+  );
+});
+
 test("rejects a password made only of spaces", async ({ page }, testInfo) => {
   await fillValidForm(page, "Athlete", uniqueEmail(testInfo));
   // Eight spaces pass the browser's minLength.

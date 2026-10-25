@@ -36,17 +36,21 @@ describe("hasVisibleText", () => {
     expect(hasVisibleText(" \u00A0\u3000\n")).toBe(false);
   });
 
-  it("treats invisible format characters as blank", () => {
-    for (const invisible of [
-      "\u00AD",
-      "\u200B",
-      "\u200C",
-      "\u200D",
-      "\u200E",
-      "\u2060",
-      "\uFEFF",
-    ]) {
-      expect(hasVisibleText(invisible), invisible).toBe(false);
+  it("treats invisible characters as blank, including the ends of each range", () => {
+    const invisible = [
+      ...["\t", "\v", "\u0085", "\u00A0", "\u1680", "\u2000", "\u200A", "\u202F", "\u3000"],
+      ...["\u00AD", "\u034F", "\u061C", "\u17B4", "\u17B5", "\u180B", "\u180F"],
+      ...["\u200B", "\u200F", "\u2028", "\u202E", "\u205F", "\u2064", "\u2066", "\u206F"],
+      ...["\u115F", "\u1160", "\u3164", "\uFFA0", "\u2800", "\uFE00", "\uFE0F", "\uFEFF"],
+    ];
+    for (const character of invisible) {
+      expect(hasVisibleText(character), character).toBe(false);
+    }
+  });
+
+  it("counts the characters just outside the ranges as visible", () => {
+    for (const character of ["\u180A", "\u2030", "\u2070", "\uFE10"]) {
+      expect(hasVisibleText(character), character).toBe(true);
     }
   });
 });

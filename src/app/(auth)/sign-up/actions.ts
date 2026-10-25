@@ -47,10 +47,12 @@ export async function signUp(_prevState: SignUpState, payload: unknown): Promise
     switch (error.code) {
       case "weak_password":
         return fail("Choose a stronger password.");
-      // Auth's own email checks (format, length) answer validation_failed; the password and
-      // account type are checked above, so it's the email.
       case "email_address_invalid":
+        return fail("Enter a valid email address.");
+      // Auth's own email checks (format, length) answer this; the password and account type
+      // are checked above. Log it anyway: other request problems answer it too.
       case "validation_failed":
+        console.error("Sign-up failed", error.code, error.message);
         return fail("Enter a valid email address.");
       // Auth only says this when phone or email autoconfirm is on (see [auth.sms] in
       // supabase/config.toml). Answer like any other sign-up, so the form never reveals
