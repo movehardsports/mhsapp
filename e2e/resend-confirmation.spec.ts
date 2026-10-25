@@ -11,21 +11,25 @@ async function requestNewLink(page: Page, email: string) {
   await main(page).getByRole("button", { name: "Send a new link" }).click();
 }
 
+const sentText = "we sent it a new confirmation link";
+
 test("an unconfirmed account gets a new link, and only the newest one works", async ({
   page,
 }, testInfo) => {
   const email = await signUp(page, testInfo, { confirm: false });
   const firstLink = await confirmationLinkPath(email);
 
-  // Auth sends at most one email per address per second locally (a minute on hosted).
-  await page.waitForTimeout(1_500);
-  await requestNewLink(page, email);
-  await expect(page.getByRole("status")).toContainText("we sent it a new confirmation link");
+  // Auth sends at most one email per address per max_frequency (supabase/config.toml); asking
+  // sooner answers the same but sends nothing, so ask until a new email arrives.
+  let newLink = firstLink;
+  await expect(async () => {
+    await requestNewLink(page, email);
+    await expect(page.getByRole("status")).toContainText(sentText);
+    newLink = await confirmationLinkPath(email);
+    expect(newLink).not.toBe(firstLink);
+  }).toPass();
   // No form data ends up in the URL.
   await expect(page).toHaveURL("/sign-up/resend");
-
-  let newLink = firstLink;
-  await expect.poll(async () => (newLink = await confirmationLinkPath(email))).not.toBe(firstLink);
 
   await page.goto(firstLink);
   await main(page).getByRole("button", { name: "Confirm email" }).click();
@@ -36,11 +40,20 @@ test("an unconfirmed account gets a new link, and only the newest one works", as
   await expect(page).toHaveURL("/onboarding/athlete");
 });
 
-test("an unknown email gets the same answer", async ({ page }, testInfo) => {
-  const email = uniqueEmail(testInfo);
-  await requestNewLink(page, email);
-  await expect(page.getByRole("status")).toContainText(email);
-  await expect(page.getByRole("status")).toContainText("we sent it a new confirmation link");
+test("every email gets the same answer, even when asked twice", async ({ page }, testInfo) => {
+  // Asking twice in a row hits Auth's per-email rate limit, but only for unconfirmed accounts,
+  // so that must not change the answer either.
+  const unconfirmed = await signUp(page, testInfo, { confirm: false });
+  const confirmed = await signUp(page, testInfo);
+  await page.context().clearCookies();
+
+  for (const email of [unconfirmed, confirmed, uniqueEmail(testInfo)]) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await requestNewLink(page, email);
+      await expect(page.getByRole("status"), email).toContainText(email);
+      await expect(page.getByRole("status"), email).toContainText(sentText);
+    }
+  }
 });
 
 test("the pages that mention a lost link lead here", async ({ page }, testInfo) => {

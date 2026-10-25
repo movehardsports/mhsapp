@@ -20,8 +20,8 @@ export default function ResendConfirmationForm() {
         <h2 className="text-xl font-semibold">Check your email</h2>
         <p className="text-foreground/70">
           If <strong className="text-foreground">{state.email}</strong> belongs to an account that
-          isn&apos;t confirmed yet, we sent it a new confirmation link. Earlier links no longer
-          work.
+          isn&apos;t confirmed yet, we sent it a new confirmation link. Use the link in the newest
+          email: earlier ones stop working. Nothing after a few minutes? Try again.
         </p>
         <p className="text-foreground/70">
           Already confirmed?{" "}

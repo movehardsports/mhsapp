@@ -16,7 +16,8 @@ export default async function ResendConfirmationPage() {
     <>
       <PageTitle>Get a new confirmation link</PageTitle>
       <p className="mb-6 text-foreground/70">
-        Enter the email you signed up with. We&apos;ll send a new link to confirm it.
+        Enter the email you signed up with. We&apos;ll send a new link to confirm it. Signing up
+        again instead keeps the password and account type you chose the first time.
       </p>
       <ResendConfirmationForm />
     </>

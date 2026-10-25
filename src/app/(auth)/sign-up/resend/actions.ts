@@ -28,11 +28,14 @@ export async function resendConfirmation(
 
   if (error) {
     switch (error.code) {
-      // Auth allows one email per address per minute (less locally). Only an unconfirmed
-      // account reaches this, but it reveals no more than "wait".
+      // Auth sends one email per address per max_frequency (a minute on hosted, a second
+      // locally). Only an unconfirmed account hits this, so answering differently would reveal
+      // it exists: answer as if sent. The newest email's link still works.
       case "over_email_send_rate_limit":
+        return { status: "sent", email };
+      // Too many requests from this IP, whatever the email: safe to say so.
       case "over_request_rate_limit":
-        return fail("Wait a minute, then ask for another link.");
+        return fail("Too many attempts. Wait a few minutes and try again.");
       case "email_address_invalid":
       case "validation_failed":
         console.error("Resending the confirmation failed", error.code, error.message);
