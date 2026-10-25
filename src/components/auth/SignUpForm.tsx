@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useRef } from "react";
 import { type SignUpState, signUp } from "@/app/(auth)/sign-up/actions";
 import Field from "@/components/forms/Field";
 import SubmitButton from "@/components/forms/SubmitButton";
-import { checkableTile, formError } from "@/components/ui/styles";
+import { resendConfirmationLink } from "@/components/header/navigation";
+import { checkableTile, formError, textLink } from "@/components/ui/styles";
 import { accountTypeLabels, accountTypes } from "@/lib/accountTypes";
 import { EMAIL_MAX, MIN_PASSWORD_LENGTH } from "@/lib/auth/validation";
 
@@ -33,7 +35,12 @@ export default function SignUpForm() {
         </p>
         {/* The same answer comes for an email that already has an account, which gets no link. */}
         <p className="text-foreground/70">
-          No email? If you already have an account with this address, sign in instead.
+          No email? If you already have an account with this address, sign in instead. Otherwise,
+          check your spam folder or{" "}
+          <Link href={resendConfirmationLink.href} className={textLink}>
+            get a new link
+          </Link>
+          .
         </p>
       </div>
     );
