@@ -13,7 +13,8 @@ export const metadata: Metadata = {
   title: "Dashboard",
 };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: PageProps<"/dashboard">) {
+  const { notice } = await searchParams;
   const supabase = await createClient();
   const account = await requireOnboardedAccount(supabase);
 
@@ -37,6 +38,15 @@ export default async function DashboardPage() {
               New campaign
             </Link>
           </div>
+          {notice === "not-deleted" && (
+            <p
+              role="status"
+              className="rounded-button border border-foreground/15 px-4 py-3 text-sm"
+            >
+              An athlete applied before the campaign was deleted, so it&apos;s still here. Campaigns
+              with applications can&apos;t be deleted.
+            </p>
+          )}
           <CampaignList campaigns={campaigns} />
         </section>
       )}

@@ -97,6 +97,13 @@ describe("cleanMultilineText", () => {
     expect(cleanMultilineText(file, 100)).toBeNull();
   });
 
+  it("rejects control characters other than tabs and line breaks", () => {
+    expect(cleanMultilineText("hello\u0000world", 100)).toBeNull();
+    expect(cleanMultilineText("bell\u0007", 100)).toBeNull();
+    expect(cleanMultilineText("esc\u001b[0m", 100)).toBeNull();
+    expect(cleanMultilineText("tab\there\nline", 100)).toBe("tab\there\nline");
+  });
+
   it("counts a normalised line ending as one character", () => {
     expect(cleanMultilineText("a\r\nb", 3)).toBe("a\nb");
   });

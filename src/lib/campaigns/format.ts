@@ -6,3 +6,6 @@ export const formatDeadline = (deadline: string) =>
     year: "numeric",
     timeZone: "UTC",
   });
+
+// The UTC day of a timestamp from the database (e.g. created_at), formatted like deadlines.
+export const formatDate = (timestamp: string) => formatDeadline(timestamp.slice(0, 10));

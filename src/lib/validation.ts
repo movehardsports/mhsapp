@@ -39,11 +39,20 @@ export function cleanText(value: FormDataEntryValue | null, maxLength: number) {
 }
 
 // Multi-line text from a textarea: line endings become "\n" (browsers submit "\r\n") and the
-// surrounding whitespace is trimmed. Null when it's blank or too long.
+// surrounding whitespace is trimmed. Null when it's blank, too long or holds control characters
+// other than tabs and line breaks.
 export function cleanMultilineText(value: FormDataEntryValue | null, maxLength: number) {
   if (typeof value !== "string") return null;
   const cleaned = value.replace(/\r\n?/g, "\n").trim();
-  if (!hasVisibleText(cleaned) || cleaned.length > maxLength) return null;
+  // Control characters other than tabs and line breaks never belong in text, and Postgres
+  // can't store NUL at all.
+  if (
+    !hasVisibleText(cleaned) ||
+    cleaned.length > maxLength ||
+    /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/.test(cleaned)
+  ) {
+    return null;
+  }
   return cleaned;
 }
 

@@ -4,7 +4,7 @@ import { defineConfig, devices } from "@playwright/test";
 const PORT = 3100;
 
 // Specs that call the Supabase APIs directly; the browser doesn't matter for them.
-const apiSpecs = ["campaigns-rls.spec.ts", "api-rules.spec.ts"];
+const apiSpecs = ["campaigns-rls.spec.ts", "api-rules.spec.ts", "applications-rls.spec.ts"];
 // The desktop header and flows checked on desktop only.
 const desktopOnlySpecs = ["header.spec.ts", "session.spec.ts", "dashboard.spec.ts"];
 

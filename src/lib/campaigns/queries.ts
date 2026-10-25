@@ -30,15 +30,22 @@ export async function getPublicCampaign(supabase: Supabase, id: string) {
   return data;
 }
 
-// A brand's own campaigns for its dashboard, newest first.
+// How many applications a campaign has, from an embedded `applications(count)`.
+const countOf = (applications: { count: number }[]) => applications[0]?.count ?? 0;
+
+// A brand's own campaigns for its dashboard, newest first, with their number of applications
+// (RLS lets a brand read the applications to its own campaigns).
 export async function listBrandCampaigns(supabase: Supabase, brandId: string) {
   const { data, error } = await supabase
     .from("campaigns")
-    .select("id, type, title, sports, deadline")
+    .select("id, type, title, sports, deadline, applications(count)")
     .eq("brand_id", brandId)
     .order("created_at", { ascending: false });
   if (error) throw new Error(`Reading the campaigns failed: ${error.code}`);
-  return data;
+  return data.map(({ applications, ...campaign }) => ({
+    ...campaign,
+    applicationCount: countOf(applications),
+  }));
 }
 
 // One of the brand's own campaigns, for editing. Campaigns are public, so this filters by
@@ -47,10 +54,12 @@ export async function getBrandCampaign(supabase: Supabase, brandId: string, id: 
   if (!isUuid(id)) return null;
   const { data, error } = await supabase
     .from("campaigns")
-    .select("type, title, description, sports, deadline")
+    .select("type, title, description, sports, deadline, applications(count)")
     .eq("id", id)
     .eq("brand_id", brandId)
     .maybeSingle();
   if (error) throw new Error(`Reading the campaign failed: ${error.code}`);
-  return data;
+  if (!data) return null;
+  const { applications, ...campaign } = data;
+  return { ...campaign, applicationCount: countOf(applications) };
 }

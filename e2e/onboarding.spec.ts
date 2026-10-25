@@ -169,14 +169,15 @@ test.describe("athlete onboarding", () => {
     await page.getByLabel("Nickname").fill("   ");
     await submit(page).click();
     await expect(alert(page)).toHaveText("Enter a nickname (up to 50 characters).");
-    // Invisible characters alone look blank too; the browser's `required` accepts them.
-    // The message is the same as before, so wait for the answer itself: it resets the form.
-    await page.getByLabel("Nickname").fill("\u200B");
-    const answered = page.waitForResponse((response) => response.request().method() === "POST");
+    // Invisible characters alone look blank too; the browser's `required` accepts them. Each
+    // answer resets the form to the values sent, so every step waits for a different message
+    // (or page) before typing again.
+    await page.getByLabel("Nickname").fill("JD");
+    await page.getByLabel("City").fill("\u200B");
     await submit(page).click();
-    await answered;
-    await expect(alert(page)).toHaveText("Enter a nickname (up to 50 characters).");
+    await expect(alert(page)).toHaveText("Enter your city (up to 100 characters).");
 
+    await page.getByLabel("City").fill("Warsaw");
     await page.getByLabel("Nickname").fill("  JD  ");
     await submit(page).click();
     await expect(page).toHaveURL("/");

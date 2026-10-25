@@ -44,13 +44,26 @@ export default async function EditCampaignPage({
       <PageTitle>Edit campaign</PageTitle>
       <CampaignForm
         action={updateCampaign.bind(null, id)}
-        initialValues={{ ...campaign, deadline: campaign.deadline ?? "" }}
+        initialValues={{
+          type: campaign.type,
+          title: campaign.title,
+          description: campaign.description,
+          sports: campaign.sports,
+          deadline: campaign.deadline ?? "",
+        }}
         submitLabel="Save changes"
         pendingLabel="Saving…"
         minDeadline={minDeadline}
       />
 
-      <DeleteCampaign campaignId={id} label="Delete campaign" className="mt-10 text-center" />
+      {campaign.applicationCount === 0 ? (
+        <DeleteCampaign campaignId={id} label="Delete campaign" className="mt-10 text-center" />
+      ) : (
+        // The database keeps campaigns with applications, so athletes don't lose them.
+        <p className="mt-10 text-center text-sm text-foreground/70">
+          Athletes have applied to this campaign, so it can&apos;t be deleted.
+        </p>
+      )}
     </PageMain>
   );
 }
