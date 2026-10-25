@@ -3,11 +3,55 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      applications: {
+        Row: {
+          athlete_id: string;
+          campaign_id: string;
+          created_at: string;
+          id: string;
+          message: string;
+          status: Database["public"]["Enums"]["application_status"];
+        };
+        ComputedFields: never;
+        Insert: {
+          athlete_id: string;
+          campaign_id: string;
+          created_at?: string;
+          id?: string;
+          message: string;
+          status?: Database["public"]["Enums"]["application_status"];
+        };
+        Update: {
+          athlete_id?: string;
+          campaign_id?: string;
+          created_at?: string;
+          id?: string;
+          message?: string;
+          status?: Database["public"]["Enums"]["application_status"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "applications_athlete_id_fkey";
+            columns: ["athlete_id"];
+            isOneToOne: false;
+            referencedRelation: "athletes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "applications_campaign_id_fkey";
+            columns: ["campaign_id"];
+            isOneToOne: false;
+            referencedRelation: "campaigns";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       athlete_private: {
         Row: {
           id: string;
           last_name: string;
         };
+        ComputedFields: never;
         Insert: {
           id: string;
           last_name: string;
@@ -37,6 +81,7 @@ export type Database = {
           nickname: string;
           sports: Database["public"]["Enums"]["sport"][];
         };
+        ComputedFields: never;
         Insert: {
           account_type?: Database["public"]["Enums"]["account_type"];
           birth_year: number;
@@ -75,6 +120,7 @@ export type Database = {
           name: string;
           sports: Database["public"]["Enums"]["sport"][];
         };
+        ComputedFields: never;
         Insert: {
           account_type?: Database["public"]["Enums"]["account_type"];
           created_at?: string;
@@ -110,6 +156,7 @@ export type Database = {
           title: string;
           type: Database["public"]["Enums"]["campaign_type"];
         };
+        ComputedFields: never;
         Insert: {
           brand_id: string;
           created_at?: string;
@@ -146,6 +193,7 @@ export type Database = {
           created_at: string;
           id: string;
         };
+        ComputedFields: never;
         Insert: {
           account_type: Database["public"]["Enums"]["account_type"];
           created_at?: string;
@@ -181,6 +229,7 @@ export type Database = {
     };
     Enums: {
       account_type: "athlete" | "brand";
+      application_status: "pending" | "accepted" | "rejected";
       campaign_type: "sponsorship" | "event" | "ambassador";
       sport:
         | "triathlon"
@@ -311,6 +360,7 @@ export const Constants = {
   public: {
     Enums: {
       account_type: ["athlete", "brand"],
+      application_status: ["pending", "accepted", "rejected"],
       campaign_type: ["sponsorship", "event", "ambassador"],
       sport: [
         "triathlon",

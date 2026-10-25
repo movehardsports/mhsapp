@@ -98,6 +98,11 @@ export async function deleteCampaign(campaignId: string) {
   if (!isUuid(campaignId)) redirect("/dashboard");
 
   const result = await deleteBrandCampaign(supabase, userId, campaignId);
+  // Someone applied since the page offered Delete: the dashboard says why it's still there.
+  if (!result.ok && result.reason === "has-applications") {
+    revalidateCampaignPages();
+    redirect("/dashboard?notice=not-deleted", RedirectType.replace);
+  }
   if (!result.ok) throw new Error("Deleting the campaign failed");
 
   revalidateCampaignPages();

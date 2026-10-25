@@ -38,13 +38,16 @@ export async function updateBrandCampaign(
   return data.length > 0 ? { ok: true } : { ok: false, reason: "gone" };
 }
 
-// Deleting a campaign that's already gone counts as done.
+// Deleting a campaign that's already gone counts as done. "has-applications" when athletes
+// applied to it: the database keeps such campaigns (the foreign key from applications).
 export async function deleteBrandCampaign(
   supabase: Supabase,
   brandId: string,
   id: string
-): Promise<{ ok: boolean }> {
+): Promise<{ ok: true } | { ok: false; reason: "has-applications" | "error" }> {
   const { error } = await supabase.from("campaigns").delete().eq("id", id).eq("brand_id", brandId);
-  if (error) console.error("Deleting a campaign failed", error.code, error.message);
-  return { ok: !error };
+  if (!error) return { ok: true };
+  if (error.code === "23503") return { ok: false, reason: "has-applications" };
+  console.error("Deleting a campaign failed", error.code, error.message);
+  return { ok: false, reason: "error" };
 }
