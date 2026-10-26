@@ -25,7 +25,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
   const applications = isBrand ? null : await listAthleteApplications(supabase, account.userId);
 
   return (
-    <PageMain width="narrow">
+    <PageMain width="wide">
       {/* No visible title for now; the heading is for screen readers. */}
       <h1 className="sr-only">Dashboard</h1>
       {campaigns && (
