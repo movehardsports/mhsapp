@@ -104,14 +104,6 @@ test("only pending applications can be withdrawn, and only by their athlete", as
   await apply(athlete.token, { campaign_id: campaign, athlete_id: athlete.id, message: "Hi" });
   const path = `applications?campaign_id=eq.${campaign}&athlete_id=eq.${athlete.id}`;
 
-  // Nobody can change an application yet (no update grant), its status included.
-  const patched = await rest(path, {
-    method: "PATCH",
-    token: brand.token,
-    body: { status: "accepted" },
-  });
-  expect(patched.status).toBe(403);
-
   // The brand can't delete it; RLS skips the row without an error.
   await rest(path, { method: "DELETE", token: brand.token });
   const stillThere = await rest(`${path}&select=status`, { token: athlete.token });
@@ -121,6 +113,41 @@ test("only pending applications can be withdrawn, and only by their athlete", as
   expect((await rest(path, { method: "DELETE", token: athlete.token })).status).toBe(204);
   const gone = await rest(`${path}&select=status`, { token: athlete.token });
   expect(await gone.json()).toEqual([]);
+});
+
+test("only the campaign's brand can set an application's status", async ({ browser }, testInfo) => {
+  const brand = await newUser(browser, testInfo, "Brand");
+  const otherBrand = await newUser(browser, testInfo, "Brand");
+  const campaign = await createCampaign(brand.page);
+  const athlete = await newUser(browser, testInfo, "Athlete");
+  await apply(athlete.token, { campaign_id: campaign, athlete_id: athlete.id, message: "Hi" });
+  const path = `applications?campaign_id=eq.${campaign}&athlete_id=eq.${athlete.id}`;
+  const statusOf = async () => {
+    const r = await rest(`${path}&select=status`, { token: brand.token });
+    return (await r.json())[0]?.status;
+  };
+
+  // The applicant can't set their own status (RLS skips the row).
+  await rest(path, { method: "PATCH", token: athlete.token, body: { status: "accepted" } });
+  expect(await statusOf()).toBe("pending");
+  // Another brand can't either.
+  await rest(path, { method: "PATCH", token: otherBrand.token, body: { status: "accepted" } });
+  expect(await statusOf()).toBe("pending");
+  // The owning brand can, and reversibly.
+  const accepted = await rest(path, {
+    method: "PATCH",
+    token: brand.token,
+    body: { status: "accepted" },
+  });
+  expect(accepted.status).toBe(204);
+  expect(await statusOf()).toBe("accepted");
+  // But only the status column: the message has no update grant.
+  const message = await rest(path, {
+    method: "PATCH",
+    token: brand.token,
+    body: { message: "changed" },
+  });
+  expect(message.status).toBe(403);
 });
 
 test("a campaign with applications can't be deleted", async ({ browser }, testInfo) => {
