@@ -48,6 +48,13 @@ export default function CampaignList({ campaigns }: { campaigns: CampaignListIte
           </p>
           <div className="mt-3 flex items-baseline gap-5">
             <Link
+              href={`/dashboard/campaigns/${campaign.id}/applications`}
+              aria-label={`Applications to ${campaign.title}`}
+              className={`${textLink} text-sm`}
+            >
+              Applications ({campaign.applicationCount})
+            </Link>
+            <Link
               href={`/dashboard/campaigns/${campaign.id}/edit`}
               aria-label={`Edit ${campaign.title}`}
               className={`${textLink} text-sm`}

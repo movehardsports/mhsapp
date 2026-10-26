@@ -5,6 +5,10 @@ export const applicationStatuses = ["pending", "accepted", "rejected"] as const;
 
 export type ApplicationStatus = (typeof applicationStatuses)[number];
 
+export function isApplicationStatus(value: unknown): value is ApplicationStatus {
+  return applicationStatuses.includes(value as ApplicationStatus);
+}
+
 export const applicationStatusLabels: Record<ApplicationStatus, string> = {
   pending: "Pending",
   accepted: "Accepted",

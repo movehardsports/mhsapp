@@ -21,3 +21,19 @@ export async function getAthleteApplication(
   if (error) throw new Error(`Reading the application failed: ${error.code}`);
   return data;
 }
+
+// The applications to one of the brand's own campaigns, newest first, with each applicant's
+// public profile (never the last name, which is owner-only). RLS lets the campaign's brand read
+// these; call getBrandCampaign first to confirm ownership and get the title.
+export async function listCampaignApplications(supabase: Supabase, campaignId: string) {
+  if (!isUuid(campaignId)) return [];
+  const { data, error } = await supabase
+    .from("applications")
+    .select(
+      "id, status, message, created_at, athlete:athletes(first_name, nickname, birth_year, city, sports)"
+    )
+    .eq("campaign_id", campaignId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(`Reading the applications failed: ${error.code}`);
+  return data;
+}

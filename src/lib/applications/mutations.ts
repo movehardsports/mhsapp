@@ -1,4 +1,5 @@
 import "server-only";
+import type { ApplicationStatus } from "@/lib/applications/statuses";
 import type { ApplicationInput } from "@/lib/applications/validation";
 import type { Supabase } from "@/lib/supabase/server";
 
@@ -40,4 +41,24 @@ export async function deletePendingApplication(
     .eq("status", "pending");
   if (error) console.error("Withdrawing an application failed", error.code, error.message);
   return { ok: !error };
+}
+
+// Sets an application's status, always as the campaign's brand: RLS allows the update only on
+// applications to the brand's own campaigns, and only the status column is grantable. "gone"
+// when the row isn't the brand's to change (RLS skipped it) or doesn't exist.
+export async function setApplicationStatus(
+  supabase: Supabase,
+  applicationId: string,
+  status: ApplicationStatus
+): Promise<{ ok: true } | { ok: false; reason: "gone" | "error" }> {
+  const { data, error } = await supabase
+    .from("applications")
+    .update({ status })
+    .eq("id", applicationId)
+    .select("id");
+  if (error) {
+    console.error("Updating an application failed", error.code, error.message);
+    return { ok: false, reason: "error" };
+  }
+  return data.length > 0 ? { ok: true } : { ok: false, reason: "gone" };
 }
