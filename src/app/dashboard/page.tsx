@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ApplicationList from "@/components/applications/ApplicationList";
 import CampaignList from "@/components/campaigns/CampaignList";
 import SubmitButton from "@/components/forms/SubmitButton";
 import PageMain from "@/components/ui/PageMain";
 import { primaryButton, secondaryButton } from "@/components/ui/styles";
 import { signOut } from "@/lib/auth/actions";
 import { requireOnboardedAccount } from "@/lib/auth/session";
+import { listAthleteApplications } from "@/lib/applications/queries";
 import { listBrandCampaigns } from "@/lib/campaigns/queries";
 import { createClient } from "@/lib/supabase/server";
 
@@ -18,11 +20,12 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
   const supabase = await createClient();
   const account = await requireOnboardedAccount(supabase);
 
-  const campaigns =
-    account.accountType === "brand" ? await listBrandCampaigns(supabase, account.userId) : null;
+  const isBrand = account.accountType === "brand";
+  const campaigns = isBrand ? await listBrandCampaigns(supabase, account.userId) : null;
+  const applications = isBrand ? null : await listAthleteApplications(supabase, account.userId);
 
   return (
-    <PageMain width="narrow">
+    <PageMain width="wide">
       {/* No visible title for now; the heading is for screen readers. */}
       <h1 className="sr-only">Dashboard</h1>
       {campaigns && (
@@ -48,6 +51,14 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
             </p>
           )}
           <CampaignList campaigns={campaigns} />
+        </section>
+      )}
+      {applications && (
+        <section aria-labelledby="applications-heading" className="mb-8 flex flex-col gap-4">
+          <h2 id="applications-heading" className="text-lg font-bold tracking-tight">
+            Your applications
+          </h2>
+          <ApplicationList applications={applications} />
         </section>
       )}
       <form action={signOut}>
