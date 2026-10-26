@@ -37,3 +37,16 @@ export async function listCampaignApplications(supabase: Supabase, campaignId: s
   if (error) throw new Error(`Reading the applications failed: ${error.code}`);
   return data;
 }
+
+// The athlete's own applications for their dashboard, newest first, with the campaign they're
+// for (public read) and its brand's name. The campaign always exists: a campaign with
+// applications can't be deleted (on delete restrict).
+export async function listAthleteApplications(supabase: Supabase, athleteId: string) {
+  const { data, error } = await supabase
+    .from("applications")
+    .select("status, created_at, campaign:campaigns(id, type, title, deadline, brand:brands(name))")
+    .eq("athlete_id", athleteId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(`Reading the applications failed: ${error.code}`);
+  return data;
+}
