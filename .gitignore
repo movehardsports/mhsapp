@@ -50,3 +50,6 @@ next-env.d.ts
 
 # Python bytecode (e.g. from running skill scripts)
 __pycache__/
+
+# Brainstorming mockups and plan-execution scratch
+.superpowers/
