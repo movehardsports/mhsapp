@@ -1,7 +1,8 @@
-import { expect, type Page, type TestInfo } from "@playwright/test";
+import { type Browser, expect, type Page, type TestInfo } from "@playwright/test";
 import { gotoHydrated } from "./hydration";
 import { confirmationLinkPath, uniqueEmail } from "./mailpit";
 import { openMobileMenu } from "./mobile-menu";
+import { accessToken, userId } from "./supabase";
 
 export const TEST_PASSWORD = "secret123";
 
@@ -60,4 +61,20 @@ export async function completeAthleteOnboarding(page: Page) {
   await page.getByRole("group", { name: "Sports" }).getByText("Hyrox", { exact: true }).click();
   await page.getByRole("main").getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL("/");
+}
+
+// A new onboarded user for the Data API specs, signed in on their own page (pushed to `pages`
+// so the spec can close it after each test), with their id and access token.
+export async function newApiUser(
+  browser: Browser,
+  testInfo: TestInfo,
+  accountType: "Athlete" | "Brand",
+  pages: Page[]
+) {
+  const page = await browser.newPage();
+  pages.push(page);
+  await signUp(page, testInfo, { accountType });
+  if (accountType === "Brand") await completeBrandOnboarding(page);
+  else await completeAthleteOnboarding(page);
+  return { page, id: await userId(page.context()), token: await accessToken(page.context()) };
 }

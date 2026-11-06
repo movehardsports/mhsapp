@@ -45,17 +45,19 @@ export async function deletePendingApplication(
 
 // Sets an application's status, always as the campaign's brand: RLS allows the update only on
 // applications to the brand's own campaigns, and only the status column is grantable. "gone"
-// when the row isn't the brand's to change (RLS skipped it) or doesn't exist.
+// when the row isn't the brand's to change (RLS skipped it) or doesn't exist; "locked" when it
+// was accepted once and so can't go back to pending (a trigger refuses it).
 export async function setApplicationStatus(
   supabase: Supabase,
   applicationId: string,
   status: ApplicationStatus
-): Promise<{ ok: true } | { ok: false; reason: "gone" | "error" }> {
+): Promise<{ ok: true } | { ok: false; reason: "gone" | "locked" | "error" }> {
   const { data, error } = await supabase
     .from("applications")
     .update({ status })
     .eq("id", applicationId)
     .select("id");
+  if (error?.code === "23514") return { ok: false, reason: "locked" };
   if (error) {
     console.error("Updating an application failed", error.code, error.message);
     return { ok: false, reason: "error" };

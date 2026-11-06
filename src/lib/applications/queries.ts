@@ -30,7 +30,7 @@ export async function listCampaignApplications(supabase: Supabase, campaignId: s
   const { data, error } = await supabase
     .from("applications")
     .select(
-      "id, status, message, created_at, athlete:athletes(first_name, nickname, birth_year, city, sports)"
+      "id, status, accepted_at, message, created_at, athlete:athletes(first_name, nickname, birth_year, city, sports)"
     )
     .eq("campaign_id", campaignId)
     .order("created_at", { ascending: false });

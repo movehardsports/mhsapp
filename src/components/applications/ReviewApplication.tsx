@@ -4,20 +4,24 @@ import { secondaryButton } from "@/components/ui/styles";
 import type { ApplicationStatus } from "@/lib/applications/statuses";
 
 // The status controls for one application: a button for each status other than the current one,
-// so a brand can accept, reject or change its mind. Plain forms, so they work before hydration.
+// so a brand can accept, reject or change its mind. An application accepted once never goes back
+// to pending (its chat keeps its history; the database refuses it too). Plain forms, so they
+// work before hydration.
 export default function ReviewApplication({
   campaignId,
   applicationId,
   applicantName,
   status,
+  everAccepted,
 }: {
   campaignId: string;
   applicationId: string;
   applicantName: string;
   status: ApplicationStatus;
+  everAccepted: boolean;
 }) {
   const targets: ApplicationStatus[] = (["accepted", "rejected", "pending"] as const).filter(
-    (target) => target !== status
+    (target) => target !== status && !(target === "pending" && everAccepted)
   );
   // What each button does, read aloud with the applicant it belongs to.
   const verb: Record<ApplicationStatus, string> = {

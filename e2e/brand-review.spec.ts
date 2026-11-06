@@ -80,7 +80,7 @@ test("a campaign with no applications shows the empty state", async ({ browser }
   await expect(main(brand).getByText("No applications yet.")).toBeVisible();
 });
 
-test("a brand accepts, rejects and resets, and the athlete sees each status", async ({
+test("a brand accepts and rejects, and the athlete sees each status", async ({
   browser,
 }, testInfo) => {
   const { brand, athlete, campaignId } = await campaignWithApplication(browser, testInfo);
@@ -99,7 +99,24 @@ test("a brand accepts, rejects and resets, and the athlete sees each status", as
   await applicant.getByRole("button", { name: /^Reject/ }).click();
   await expect(applicant).toContainText("Status: Rejected");
 
-  // Reversible: back to pending, and the athlete can withdraw again.
+  // Once accepted, it never goes back to pending (the chat keeps its history), so the athlete
+  // can't withdraw it; the brand can still accept it again.
+  await expect(applicant.getByRole("button", { name: /Reset to pending/ })).toHaveCount(0);
+  await expect(applicant.getByRole("button", { name: /^Accept/ })).toBeVisible();
+  await athlete.goto(`/campaigns/${campaignId}`);
+  await expect(main(athlete)).toContainText("Status: Rejected");
+  await expect(main(athlete).getByRole("button", { name: "Withdraw application" })).toHaveCount(0);
+});
+
+test("a rejection that was never accepted can be reset to pending", async ({
+  browser,
+}, testInfo) => {
+  const { brand, athlete, campaignId } = await campaignWithApplication(browser, testInfo);
+  const applicant = main(brand).getByRole("listitem");
+
+  await gotoHydrated(brand, `/dashboard/campaigns/${campaignId}/applications`);
+  await applicant.getByRole("button", { name: /^Reject/ }).click();
+  await expect(applicant).toContainText("Status: Rejected");
   await applicant.getByRole("button", { name: /Reset to pending/ }).click();
   await expect(applicant).toContainText("Status: Pending");
   await athlete.goto(`/campaigns/${campaignId}`);

@@ -6,6 +6,7 @@ import { type Sport, sportLabels } from "@/lib/sports";
 type ApplicantListItem = {
   id: string;
   status: ApplicationStatus;
+  accepted_at: string | null;
   message: string;
   created_at: string;
   athlete: {
@@ -33,7 +34,7 @@ export default function ApplicantList({
 
   return (
     <ul className="flex flex-col gap-4">
-      {applications.map(({ id, status, message, created_at, athlete }) => (
+      {applications.map(({ id, status, accepted_at, message, created_at, athlete }) => (
         <li
           key={id}
           className="flex flex-col gap-3 rounded-button border border-foreground/15 px-4 py-4"
@@ -58,6 +59,7 @@ export default function ApplicantList({
             applicationId={id}
             applicantName={athlete.nickname}
             status={status}
+            everAccepted={accepted_at !== null}
           />
         </li>
       ))}

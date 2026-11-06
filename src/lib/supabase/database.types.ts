@@ -5,6 +5,7 @@ export type Database = {
     Tables: {
       applications: {
         Row: {
+          accepted_at: string | null;
           athlete_id: string;
           campaign_id: string;
           created_at: string;
@@ -14,6 +15,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          accepted_at?: string | null;
           athlete_id: string;
           campaign_id: string;
           created_at?: string;
@@ -22,6 +24,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["application_status"];
         };
         Update: {
+          accepted_at?: string | null;
           athlete_id?: string;
           campaign_id?: string;
           created_at?: string;
@@ -187,6 +190,83 @@ export type Database = {
           },
         ];
       };
+      conversation_reads: {
+        Row: {
+          application_id: string;
+          last_read_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          application_id: string;
+          last_read_at?: string;
+          user_id: string;
+        };
+        Update: {
+          application_id?: string;
+          last_read_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "conversation_reads_application_id_fkey";
+            columns: ["application_id"];
+            isOneToOne: false;
+            referencedRelation: "applications";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "conversation_reads_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      messages: {
+        Row: {
+          application_id: string;
+          body: string | null;
+          created_at: string;
+          id: string;
+          kind: Database["public"]["Enums"]["message_kind"];
+          sender_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          application_id: string;
+          body?: string | null;
+          created_at?: string;
+          id?: string;
+          kind?: Database["public"]["Enums"]["message_kind"];
+          sender_id?: string | null;
+        };
+        Update: {
+          application_id?: string;
+          body?: string | null;
+          created_at?: string;
+          id?: string;
+          kind?: Database["public"]["Enums"]["message_kind"];
+          sender_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "messages_application_id_fkey";
+            columns: ["application_id"];
+            isOneToOne: false;
+            referencedRelation: "applications";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey";
+            columns: ["sender_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           account_type: Database["public"]["Enums"]["account_type"];
@@ -231,6 +311,7 @@ export type Database = {
       account_type: "athlete" | "brand";
       application_status: "pending" | "accepted" | "rejected";
       campaign_type: "sponsorship" | "event" | "ambassador";
+      message_kind: "text" | "accepted" | "closed" | "reopened";
       sport:
         | "triathlon"
         | "hyrox"
@@ -362,6 +443,7 @@ export const Constants = {
       account_type: ["athlete", "brand"],
       application_status: ["pending", "accepted", "rejected"],
       campaign_type: ["sponsorship", "event", "ambassador"],
+      message_kind: ["text", "accepted", "closed", "reopened"],
       sport: [
         "triathlon",
         "hyrox",
