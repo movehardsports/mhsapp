@@ -196,3 +196,58 @@ test("messages don't expose the athlete's last name", async ({ browser }, testIn
     { application: { athletes: { first_name: "Jane", athlete_private: null } } },
   ]);
 });
+
+test("each user keeps only their own read state", async ({ browser }, testInfo) => {
+  const brand = await newUser(browser, testInfo, "Brand");
+  const athlete = await newUser(browser, testInfo, "Athlete");
+  const otherAthlete = await newUser(browser, testInfo, "Athlete");
+  const application = await applicationFrom(brand, athlete);
+  const markRead = (user: User, userId: string, applicationId = application) =>
+    rest("conversation_reads", {
+      method: "POST",
+      token: user.token,
+      body: { application_id: applicationId, user_id: userId },
+      prefer: "resolution=merge-duplicates",
+    });
+
+  // No chat yet, so nothing to mark read.
+  expect((await markRead(athlete, athlete.id)).status).toBe(403);
+
+  await setStatus(brand, application, "accepted");
+  expect((await markRead(athlete, athlete.id)).status).toBe(201);
+  // Again (an upsert), e.g. on every visit.
+  expect((await markRead(athlete, athlete.id)).status).toBe(200);
+
+  const read = async (user: User) =>
+    (await rest(`conversation_reads?application_id=eq.${application}&select=user_id`, {
+      token: user.token,
+    }).then((r) => r.json())) as { user_id: string }[];
+  expect(await read(athlete)).toEqual([{ user_id: athlete.id }]);
+  expect(await read(brand)).toEqual([]);
+
+  // Each write moves last_read_at to the database's clock; it can't be set by hand.
+  const lastRead = async () =>
+    (
+      (await rest(`conversation_reads?application_id=eq.${application}&select=last_read_at`, {
+        token: athlete.token,
+      }).then((r) => r.json())) as { last_read_at: string }[]
+    )[0].last_read_at;
+  const before = await lastRead();
+  expect((await markRead(athlete, athlete.id)).status).toBe(200);
+  expect(Date.parse(await lastRead())).toBeGreaterThan(Date.parse(before));
+  const forged = await rest("conversation_reads", {
+    method: "POST",
+    token: athlete.token,
+    body: {
+      application_id: application,
+      user_id: athlete.id,
+      last_read_at: "2999-01-01T00:00:00Z",
+    },
+    prefer: "resolution=merge-duplicates",
+  });
+  expect(forged.status).toBe(403);
+
+  // Nobody marks it read for someone else, nor for a chat that isn't theirs.
+  expect((await markRead(brand, athlete.id)).status).toBe(403);
+  expect((await markRead(otherAthlete, otherAthlete.id)).status).toBe(403);
+});

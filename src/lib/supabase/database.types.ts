@@ -190,6 +190,40 @@ export type Database = {
           },
         ];
       };
+      conversation_reads: {
+        Row: {
+          application_id: string;
+          last_read_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          application_id: string;
+          last_read_at?: string;
+          user_id: string;
+        };
+        Update: {
+          application_id?: string;
+          last_read_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "conversation_reads_application_id_fkey";
+            columns: ["application_id"];
+            isOneToOne: false;
+            referencedRelation: "applications";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "conversation_reads_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       messages: {
         Row: {
           application_id: string;
