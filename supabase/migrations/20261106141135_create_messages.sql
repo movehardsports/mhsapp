@@ -23,7 +23,7 @@ create table public.messages (
   body text
     check (
       char_length(body) <= 2000
-      and body ~ '[^\t\n\v\f\r \u0085 ­͏؜ᅟᅠ ឴឵᠋-᠏ -‏ -  -⁯⠀　ㅤ︀-️﻿ﾠ]'
+      and body ~ '[^\t\n\v\f\r \u0085\u00A0\u00AD\u034F\u061C\u115F\u1160\u1680\u17B4\u17B5\u180B-\u180F\u2000-\u200F\u2028-\u202F\u205F-\u206F\u2800\u3000\u3164\uFE00-\uFE0F\uFEFF\uFFA0]'
       and body = btrim(body, E' \t\n\r')
     ),
   created_at timestamptz not null default now(),

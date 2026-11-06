@@ -135,21 +135,30 @@ test("rejecting closes the chat, accepting again reopens it", async ({ browser }
   const application = await applicationFrom(brand, athlete);
   const hello = { application_id: application, sender_id: athlete.id, body: "Hello" };
 
-  await setStatus(brand, application, "accepted");
-  // Accepting again (e.g. a double submit) adds nothing.
-  await setStatus(brand, application, "accepted");
-  await setStatus(brand, application, "rejected");
+  const to = async (status: string) =>
+    expect((await setStatus(brand, application, status)).status).toBe(204);
+
+  await to("accepted");
+  // Setting the same status again (e.g. a double submit) adds nothing.
+  await to("accepted");
+  await to("rejected");
+  await to("rejected");
   expect((await send(athlete.token, hello)).status).toBe(403);
   expect((await send(brand.token, { ...hello, sender_id: brand.id })).status).toBe(403);
   expect(await kinds(athlete.token, application)).toEqual(["accepted", "closed"]);
 
-  await setStatus(brand, application, "accepted");
+  await to("accepted");
   expect((await send(athlete.token, hello)).status).toBe(201);
+  // Each further round adds one entry per change.
+  await to("rejected");
+  await to("accepted");
   expect(await kinds(athlete.token, application)).toEqual([
     "accepted",
     "closed",
     "reopened",
     "text",
+    "closed",
+    "reopened",
   ]);
 });
 
@@ -164,22 +173,33 @@ test("a never-accepted application has no chat", async ({ browser }, testInfo) =
       body: { campaign_id: campaign, athlete_id: athlete.id, message: "Hi" },
       prefer: "return=representation",
     });
-    return ((await response.json()) as { id: string }[])[0].id;
+    expect(response.status).toBe(201);
+    return ((await response.json()) as { id: string; accepted_at: string | null }[])[0];
   };
 
-  const first = await apply();
-  await setStatus(brand, first, "rejected");
-  await setStatus(brand, first, "pending");
+  const { id: first } = await apply();
+  expect((await setStatus(brand, first, "rejected")).status).toBe(204);
+  expect((await setStatus(brand, first, "pending")).status).toBe(204);
   const withdrawn = await rest(`applications?id=eq.${first}`, {
     method: "DELETE",
     token: athlete.token,
   });
   expect(withdrawn.status).toBe(204);
-  const second = await apply();
+  const { id: second, accepted_at } = await apply();
+  expect(second).not.toBe(first);
 
-  expect(await readMessages(athlete.token, first)).toEqual([]);
+  // The new application starts without a chat: nothing to read, write or mark read.
+  expect(accepted_at).toBeNull();
   expect(await readMessages(athlete.token, second)).toEqual([]);
   expect(await readMessages(brand.token, second)).toEqual([]);
+  const hello = { application_id: second, sender_id: athlete.id, body: "Hello" };
+  expect((await send(athlete.token, hello)).status).toBe(403);
+  const markRead = await rest("conversation_reads", {
+    method: "POST",
+    token: athlete.token,
+    body: { application_id: second, user_id: athlete.id },
+  });
+  expect(markRead.status).toBe(403);
 });
 
 test("messages don't expose the athlete's last name", async ({ browser }, testInfo) => {
