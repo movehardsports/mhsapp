@@ -190,6 +190,49 @@ export type Database = {
           },
         ];
       };
+      messages: {
+        Row: {
+          application_id: string;
+          body: string | null;
+          created_at: string;
+          id: string;
+          kind: Database["public"]["Enums"]["message_kind"];
+          sender_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          application_id: string;
+          body?: string | null;
+          created_at?: string;
+          id?: string;
+          kind?: Database["public"]["Enums"]["message_kind"];
+          sender_id?: string | null;
+        };
+        Update: {
+          application_id?: string;
+          body?: string | null;
+          created_at?: string;
+          id?: string;
+          kind?: Database["public"]["Enums"]["message_kind"];
+          sender_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "messages_application_id_fkey";
+            columns: ["application_id"];
+            isOneToOne: false;
+            referencedRelation: "applications";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey";
+            columns: ["sender_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           account_type: Database["public"]["Enums"]["account_type"];
@@ -234,6 +277,7 @@ export type Database = {
       account_type: "athlete" | "brand";
       application_status: "pending" | "accepted" | "rejected";
       campaign_type: "sponsorship" | "event" | "ambassador";
+      message_kind: "text" | "accepted" | "closed" | "reopened";
       sport:
         | "triathlon"
         | "hyrox"
@@ -365,6 +409,7 @@ export const Constants = {
       account_type: ["athlete", "brand"],
       application_status: ["pending", "accepted", "rejected"],
       campaign_type: ["sponsorship", "event", "ambassador"],
+      message_kind: ["text", "accepted", "closed", "reopened"],
       sport: [
         "triathlon",
         "hyrox",

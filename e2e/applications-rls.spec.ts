@@ -1,7 +1,7 @@
 import { type Browser, expect, type Page, test, type TestInfo } from "@playwright/test";
-import { completeAthleteOnboarding, completeBrandOnboarding, signUp } from "./auth";
+import { newApiUser } from "./auth";
 import { createCampaign, isoDate } from "./campaigns";
-import { accessToken, rest, userId } from "./supabase";
+import { rest } from "./supabase";
 
 // The rules on applications, through the Data API with the publishable key, as each user.
 
@@ -9,14 +9,8 @@ const extraPages: Page[] = [];
 test.afterEach(async () => {
   await Promise.all(extraPages.splice(0).map((page) => page.close()));
 });
-async function newUser(browser: Browser, testInfo: TestInfo, accountType: "Athlete" | "Brand") {
-  const page = await browser.newPage();
-  extraPages.push(page);
-  await signUp(page, testInfo, { accountType });
-  if (accountType === "Brand") await completeBrandOnboarding(page);
-  else await completeAthleteOnboarding(page);
-  return { page, id: await userId(page.context()), token: await accessToken(page.context()) };
-}
+const newUser = (browser: Browser, testInfo: TestInfo, accountType: "Athlete" | "Brand") =>
+  newApiUser(browser, testInfo, accountType, extraPages);
 
 const apply = (token: string, body: Record<string, unknown>) =>
   rest("applications", { method: "POST", token, body });
