@@ -150,6 +150,59 @@ test("only the campaign's brand can set an application's status", async ({ brows
   expect(message.status).toBe(403);
 });
 
+test("an accepted application never goes back to pending, so it can't be withdrawn", async ({
+  browser,
+}, testInfo) => {
+  const brand = await newUser(browser, testInfo, "Brand");
+  const campaign = await createCampaign(brand.page);
+  const athlete = await newUser(browser, testInfo, "Athlete");
+  await apply(athlete.token, { campaign_id: campaign, athlete_id: athlete.id, message: "Hi" });
+  const path = `applications?campaign_id=eq.${campaign}&athlete_id=eq.${athlete.id}`;
+  const read = async () => {
+    const r = await rest(`${path}&select=status,accepted_at`, { token: athlete.token });
+    return (await r.json())[0] as { status: string; accepted_at: string | null } | undefined;
+  };
+  const setStatus = (status: string) =>
+    rest(path, { method: "PATCH", token: brand.token, body: { status } });
+
+  expect((await setStatus("accepted")).status).toBe(204);
+  expect((await read())?.accepted_at).not.toBeNull();
+  expect((await setStatus("rejected")).status).toBe(204);
+
+  const toPending = await setStatus("pending");
+  expect(toPending.status).toBe(400);
+  expect((await toPending.json()).code).toBe("23514");
+  expect((await read())?.status).toBe("rejected");
+
+  // Not pending, so the athlete can't withdraw it (RLS skips the row).
+  await rest(path, { method: "DELETE", token: athlete.token });
+  expect((await read())?.status).toBe("rejected");
+
+  // accepted_at is the database's to set.
+  const forged = await rest(path, {
+    method: "PATCH",
+    token: brand.token,
+    body: { accepted_at: null },
+  });
+  expect(forged.status).toBe(403);
+});
+
+test("a never-accepted rejection can still go back to pending", async ({ browser }, testInfo) => {
+  const brand = await newUser(browser, testInfo, "Brand");
+  const campaign = await createCampaign(brand.page);
+  const athlete = await newUser(browser, testInfo, "Athlete");
+  await apply(athlete.token, { campaign_id: campaign, athlete_id: athlete.id, message: "Hi" });
+  const path = `applications?campaign_id=eq.${campaign}&athlete_id=eq.${athlete.id}`;
+  const setStatus = (status: string) =>
+    rest(path, { method: "PATCH", token: brand.token, body: { status } });
+
+  expect((await setStatus("rejected")).status).toBe(204);
+  expect((await setStatus("pending")).status).toBe(204);
+  expect((await rest(path, { method: "DELETE", token: athlete.token })).status).toBe(204);
+  const gone = await rest(`${path}&select=status`, { token: athlete.token });
+  expect(await gone.json()).toEqual([]);
+});
+
 test("a campaign with applications can't be deleted", async ({ browser }, testInfo) => {
   const brand = await newUser(browser, testInfo, "Brand");
   const campaign = await createCampaign(brand.page);

@@ -27,7 +27,8 @@ export async function reviewApplication(
   }
 
   const result = await setApplicationStatus(supabase, applicationId, status);
-  // "gone" (not this brand's row, or deleted) just re-renders the list as it is now.
+  // "gone" (not this brand's row, or deleted) and "locked" (accepted once, so never pending
+  // again; e.g. from a tab opened before) just re-render the list as it is now.
   if (!result.ok && result.reason === "error") {
     throw new Error("Updating the application failed");
   }

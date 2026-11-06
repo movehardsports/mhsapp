@@ -5,6 +5,7 @@ export type Database = {
     Tables: {
       applications: {
         Row: {
+          accepted_at: string | null;
           athlete_id: string;
           campaign_id: string;
           created_at: string;
@@ -14,6 +15,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          accepted_at?: string | null;
           athlete_id: string;
           campaign_id: string;
           created_at?: string;
@@ -22,6 +24,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["application_status"];
         };
         Update: {
+          accepted_at?: string | null;
           athlete_id?: string;
           campaign_id?: string;
           created_at?: string;
